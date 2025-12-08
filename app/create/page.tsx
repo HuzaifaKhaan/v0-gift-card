@@ -255,8 +255,8 @@ export default function CreatePage() {
 
   const isFormValid =
     recipientName &&
-    recipientEmail &&
-    message &&
+    // recipientEmail &&
+    // message &&
     (includeGift ? getActualAmount() > 0 : true) &&
     (isAnonymous || senderName)
 
