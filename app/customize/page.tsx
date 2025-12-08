@@ -132,20 +132,33 @@ function CustomizeContent() {
               {/* Flip Card Container */}
               <div
                 className="relative mx-auto cursor-pointer"
-                style={{ perspective: "1000px", maxWidth: "320px" }}
+                style={{
+                  perspective: "1000px",
+                  maxWidth: "320px",
+                  WebkitPerspective: "1000px",
+                  transformStyle: "preserve-3d",
+                  WebkitTransformStyle: "preserve-3d",
+                }}
                 onClick={() => setIsFlipped(!isFlipped)}
               >
                 <div
-                  className="relative w-full transition-transform duration-700"
+                  className="relative w-full h-full transition-transform duration-700"
                   style={{
                     transformStyle: "preserve-3d",
+                    WebkitTransformStyle: "preserve-3d",
                     transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                    WebkitTransform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                   }}
                 >
                   {/* Front of Card */}
                   <div
-                    className="w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
-                    style={{ backfaceVisibility: "hidden" }}
+                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
+                    style={{
+                      backfaceVisibility: "hidden",
+                      WebkitBackfaceVisibility: "hidden",
+                      transform: "rotateY(0deg)",
+                      WebkitTransform: "rotateY(0deg)",
+                    }}
                   >
                     <div className="aspect-[3/4] relative">
                       <Image
@@ -166,10 +179,12 @@ function CustomizeContent() {
 
                   {/* Back of Card */}
                   <div
-                    className="absolute inset-0 w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#185F72] to-[#0d3d4a]"
+                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#185F72] to-[#0d3d4a]"
                     style={{
                       backfaceVisibility: "hidden",
+                      WebkitBackfaceVisibility: "hidden",
                       transform: "rotateY(180deg)",
+                      WebkitTransform: "rotateY(180deg)",
                     }}
                   >
                     <div className="aspect-[3/4] flex flex-col justify-between p-4 sm:p-6 text-white">
