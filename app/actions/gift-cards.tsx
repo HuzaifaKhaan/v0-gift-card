@@ -68,7 +68,7 @@ export async function createGiftCard({
       const viewLink = `${appUrl}/view?code=${uniqueCode}`
 
       await resend.emails.send({
-        from: "LastMinuteCards <noreply@lastminutecards.com>",
+        from: process.env.RESEND_FROM_EMAIL,
         to: recipientEmail,
         subject: `🎁 ${senderName} sent you a gift card!`,
         html: `
