@@ -290,9 +290,7 @@ export default function CreatePage() {
                 style={{
                   perspective: "1000px",
                   maxWidth: "320px",
-                  WebkitPerspective: "1000px",
                   transformStyle: "preserve-3d",
-                  WebkitTransformStyle: "preserve-3d",
                 }}
                 onClick={() => setIsFlipped(!isFlipped)}
               >
@@ -300,9 +298,7 @@ export default function CreatePage() {
                   className="relative aspect-[3/4] w-full transition-transform duration-700"
                   style={{
                     transformStyle: "preserve-3d",
-                    WebkitTransformStyle: "preserve-3d",
                     transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-                    WebkitTransform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                   }}
                 >
                   {/* Front of Card */}
@@ -310,9 +306,7 @@ export default function CreatePage() {
                     className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
                     style={{
                       backfaceVisibility: "hidden",
-                      WebkitBackfaceVisibility: "hidden",
                       transform: "rotateY(0deg)",
-                      WebkitTransform: "rotateY(0deg)",
                     }}
                   >
                     <div
@@ -365,12 +359,10 @@ export default function CreatePage() {
 
                   {/* Back of Card */}
                   <div
-                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#185F72] to-[#0d3d4a]"
+                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
                     style={{
                       backfaceVisibility: "hidden",
-                      WebkitBackfaceVisibility: "hidden",
                       transform: "rotateY(180deg)",
-                      WebkitTransform: "rotateY(180deg)",
                     }}
                   >
                     <div className="aspect-[3/4] flex flex-col justify-between p-4 sm:p-6 text-white">
