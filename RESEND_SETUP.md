@@ -21,7 +21,8 @@
 Add these records to your domain's DNS settings (e.g., Vercel Domains, Cloudflare, etc.):
 
 #### SPF Record (Sender Policy Framework)
-\`\`\`
+
+\`\`\`txt
 Type: TXT
 Name: @ (or your subdomain)
 Value: v=spf1 include:amazonses.com ~all
@@ -29,8 +30,10 @@ TTL: 3600
 \`\`\`
 
 #### DKIM Records (DomainKeys Identified Mail)
+
 Resend will provide these after domain verification. They look like:
-\`\`\`
+
+\`\`\`txt
 Type: TXT
 Name: resend._domainkey
 Value: [Provided by Resend - long string]
@@ -38,7 +41,8 @@ TTL: 3600
 \`\`\`
 
 #### DMARC Record (Domain-based Message Authentication)
-\`\`\`
+
+\`\`\`txt
 Type: TXT
 Name: _dmarc
 Value: v=DMARC1; p=quarantine; rua=mailto:dmarc@lastminutecards.com; ruf=mailto:dmarc@lastminutecards.com; fo=1; adkim=s; aspf=s
@@ -72,6 +76,7 @@ NEXT_PUBLIC_APP_URL=https://lastminutecards.vercel.app
 - Include a real name before the email
 
 ### 2. Add Reply-To Address
+
 \`\`\`javascript
 {
   from: "LastMinuteCards <hello@lastminutecards.com>",
