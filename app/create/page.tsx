@@ -297,7 +297,7 @@ export default function CreatePage() {
                 onClick={() => setIsFlipped(!isFlipped)}
               >
                 <div
-                  className="relative w-full h-full transition-transform duration-700"
+                  className="relative aspect-[3/4] w-full transition-transform duration-700"
                   style={{
                     transformStyle: "preserve-3d",
                     WebkitTransformStyle: "preserve-3d",
@@ -316,7 +316,7 @@ export default function CreatePage() {
                     }}
                   >
                     <div
-                      className="aspect-[3/4] relative flex flex-col items-center justify-center"
+                      className="w-full h-full relative flex flex-col items-center justify-center"
                       style={{
                         backgroundColor,
                         ...getPatternStyle(),

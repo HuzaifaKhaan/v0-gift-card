@@ -142,7 +142,7 @@ function CustomizeContent() {
                 onClick={() => setIsFlipped(!isFlipped)}
               >
                 <div
-                  className="relative w-full h-full transition-transform duration-700"
+                  className="relative aspect-[3/4] w-full transition-transform duration-700"
                   style={{
                     transformStyle: "preserve-3d",
                     WebkitTransformStyle: "preserve-3d",
@@ -160,7 +160,7 @@ function CustomizeContent() {
                       WebkitTransform: "rotateY(0deg)",
                     }}
                   >
-                    <div className="aspect-[3/4] relative">
+                    <div className="w-full h-full relative">
                       <Image
                         src={currentCard.image || "/placeholder.svg"}
                         alt={currentCard.name}
