@@ -12,6 +12,7 @@ const navCategories = [
   { name: "Well Wishes", href: "/customize?category=Well Wishes" },
   { name: "Seasonal", href: "/customize?category=Seasonal" },
   { name: "Milestone Moments", href: "/customize?category=Milestone Moments" },
+  { name: "Claim Your Reward", href: "/claim-reward" },
 ]
 
 export function Header() {
@@ -56,7 +57,7 @@ export function Header() {
           </Link>
 
           <nav className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-2">
-            {navCategories.map((category) => (
+            {navCategories.slice(0, -1).map((category) => (
               <Link
                 key={category.name}
                 href={category.href}
@@ -98,7 +99,7 @@ export function Header() {
 
                   {/* Categories */}
                   <nav className="flex-1 py-2">
-                    {navCategories.map((category) => (
+                    {navCategories.slice(0, -1).map((category) => (
                       <Link
                         key={category.name}
                         href={category.href}
@@ -134,6 +135,14 @@ export function Header() {
                 </div>
               </SheetContent>
             </Sheet>
+
+            {/* Claim Your Reward button - show on right side of navigation */}
+            <Link
+              href="/claim-reward"
+              className="px-3 xl:px-4 py-2 text-xs xl:text-sm font-medium text-gray-700 transition-colors hover:text-[#185F72] whitespace-nowrap rounded-md hover:bg-gray-50 cursor-pointer"
+            >
+              Claim Your Reward
+            </Link>
           </div>
         </div>
       </div>
