@@ -100,14 +100,14 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Resources</h3>
             <ul className="space-y-2 sm:space-y-2.5">
-              <li>
+              {/* <li>
                 <Link
                   href="/contact"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   Contact Us
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   href="/#faq"
