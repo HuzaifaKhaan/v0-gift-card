@@ -118,7 +118,9 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/privacy"
+                  href="/pdf/privacy-policy.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   Privacy Policy
@@ -126,7 +128,9 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/terms"
+                  href="/pdf/terms-of-service.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   Terms of Service
@@ -134,7 +138,9 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/cookies"
+                  href="/pdf/cookie-policy.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   Cookie Policy
@@ -142,7 +148,9 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/gdpr"
+                  href="/pdf/gdpr-compliance.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   GDPR Compliance
