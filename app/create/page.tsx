@@ -612,18 +612,25 @@ export default function CreatePage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-xs text-gray-600">Text Size: {titleSize}px</Label>
-                        <Slider
-                          value={[titleSize]}
-                          onValueChange={(value) => setTitleSize(value[0])}
-                          min={12}
-                          max={48}
-                          step={2}
-                          className="mt-1"
-                        />
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-700 mb-3 block">
+                        Text Size: <span className="text-[#F6664C] text-lg">{titleSize}px</span>
+                      </Label>
+                      <Slider
+                        value={[titleSize]}
+                        onValueChange={(value) => setTitleSize(value[0])}
+                        min={12}
+                        max={48}
+                        step={2}
+                        className="mt-2 h-3"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 mt-2">
+                        <span>Small (12px)</span>
+                        <span>Large (48px)</span>
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label className="text-xs text-gray-600 mb-2 block">Text Color</Label>
                         <input

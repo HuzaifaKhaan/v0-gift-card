@@ -16,6 +16,7 @@ export default function ClaimRewardPage() {
   const [isValidating, setIsValidating] = useState(false)
   const [error, setError] = useState("")
   const [giftCard, setGiftCard] = useState<any>(null)
+  const [isFlipped, setIsFlipped] = useState(false)
 
   const handleValidateCode = async () => {
     if (!uniqueCode.trim()) {
@@ -67,7 +68,6 @@ export default function ClaimRewardPage() {
           {step === "enter-code" && (
             <div className="max-w-md mx-auto">
               <div className="bg-white rounded-2xl shadow-xl p-8 animate-in fade-in slide-in-from-bottom duration-500">
-                {/* Header with icon */}
                 <div className="text-center mb-6">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#F6664C] to-[#ff8c73] rounded-full mb-4">
                     <Gift className="w-8 h-8 text-white" />
@@ -75,11 +75,10 @@ export default function ClaimRewardPage() {
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">Claim Your Reward</h1>
                   <p className="text-gray-600">Enter your unique code to get started</p>
                 </div>
-
                 {/* Code input */}
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="code" className="text-sm font-medium text-[#185F72] mb-2 block">
+                    <Label htmlFor="code" className="text-sm font-medium text-[#185F72] mb-2 block text-center">
                       Unique Code
                     </Label>
                     <Input
@@ -127,12 +126,12 @@ export default function ClaimRewardPage() {
                 </div>
 
                 {/* Info box */}
-                <div className="mt-6 bg-gradient-to-br from-[#FFF7F5] to-[#fff0ed] border border-[#F6664C]/20 rounded-lg p-4">
-                  <p className="text-sm text-gray-700 flex items-start gap-2">
+                <div className="mt-6 bg-gradient-to-br from-[#FFF7F5] to-[#fff0ed] border border-[#F6664C]/20 rounded-lg p-4 text-center">
+                  <p className="text-sm text-gray-700 flex items-start gap-2 justify-center">
                     <span className="text-[#F6664C] font-bold">•</span>
                     <span>Your unique code was provided when the gift card was sent to you</span>
                   </p>
-                  <p className="text-sm text-gray-700 flex items-start gap-2 mt-2">
+                  <p className="text-sm text-gray-700 flex items-start gap-2 mt-2 justify-center">
                     <span className="text-[#F6664C] font-bold">•</span>
                     <span>Check your email or the message from the sender</span>
                   </p>
@@ -151,7 +150,7 @@ export default function ClaimRewardPage() {
                     <CheckCircle className="w-8 h-8 text-white" />
                   </div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">Code Verified!</h1>
-                  <p className="text-gray-600">Your gift card is ready to claim</p>
+                  <p className="text-gray-600">Your gift card is ready to view</p>
                 </div>
 
                 {/* Gift card preview */}
@@ -180,7 +179,7 @@ export default function ClaimRewardPage() {
                     className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-[#F6664C] to-[#ff8c73] hover:from-[#e55a43] hover:to-[#ff7b5e] text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Gift className="w-5 h-5 mr-2" />
-                    Claim £{giftCard.amount} Now
+                    View your Gift
                   </Button>
                 ) : (
                   <div className="text-center">
@@ -189,7 +188,7 @@ export default function ClaimRewardPage() {
                       onClick={handleClaimReward}
                       className="w-full h-14 text-lg font-semibold bg-[#185F72] hover:bg-[#144a58] text-white"
                     >
-                      View Your Card
+                      View your Gift
                     </Button>
                   </div>
                 )}
@@ -197,7 +196,7 @@ export default function ClaimRewardPage() {
             </div>
           )}
 
-          {/* Step 3: Claim Reward - Show Card & Withdrawal Form */}
+          {/* Step 3: Claim Reward - Show Card & Withdrawal Form with flip functionality */}
           {step === "claim-reward" && giftCard && (
             <div className="animate-in fade-in slide-in-from-bottom duration-500">
               {/* Header */}
@@ -206,52 +205,86 @@ export default function ClaimRewardPage() {
                 <p className="text-gray-600">View your card and claim your reward below</p>
               </div>
 
-              {/* Card Display - Front and Back Side by Side */}
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
-                {/* Front Card */}
-                <div className="bg-white rounded-2xl shadow-xl p-4 animate-in fade-in slide-in-from-left duration-700">
-                  <h3 className="text-lg font-semibold text-[#185F72] mb-3 text-center">Front</h3>
-                  <div className="aspect-[3/4] relative rounded-xl overflow-hidden shadow-lg">
-                    <Image
-                      src={giftCard.card_image_url || giftCard.card_template || "/placeholder.svg"}
-                      alt="Gift Card Front"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-
-                {/* Back Card */}
-                <div className="bg-white rounded-2xl shadow-xl p-4 animate-in fade-in slide-in-from-right duration-700">
-                  <h3 className="text-lg font-semibold text-[#185F72] mb-3 text-center">Back</h3>
-                  <div className="aspect-[3/4] bg-gradient-to-br from-[#FFF7F5] to-[#fff0ed] rounded-xl p-6 flex flex-col justify-between shadow-lg border border-[#F6664C]/20">
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">To:</p>
-                        <p className="text-xl font-bold text-[#185F72]">{giftCard.recipient_name}</p>
-                      </div>
-
-                      {giftCard.message && (
-                        <div>
-                          <p className="text-sm text-gray-500 mb-1">Message:</p>
-                          <p className="text-sm text-gray-700 italic leading-relaxed">{giftCard.message}</p>
+              <div className="max-w-4xl mx-auto mb-8">
+                <div className="flex flex-col md:flex-row gap-6">
+                  {/* Front Card with Flip */}
+                  <div className="flex-1 animate-in fade-in slide-in-from-left duration-700">
+                    <div
+                      className="cursor-pointer"
+                      style={{
+                        perspective: "1000px",
+                        WebkitPerspective: "1000px",
+                      }}
+                    >
+                      <div
+                        className="relative w-full aspect-[3/4] rounded-xl shadow-2xl"
+                        style={{
+                          transformStyle: "preserve-3d",
+                          WebkitTransformStyle: "preserve-3d",
+                          transition: "transform 0.6s",
+                          transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                        }}
+                        onClick={() => setIsFlipped(!isFlipped)}
+                      >
+                        {/* Front */}
+                        <div
+                          className="absolute inset-0 w-full h-full rounded-xl overflow-hidden"
+                          style={{
+                            backfaceVisibility: "hidden",
+                            WebkitBackfaceVisibility: "hidden",
+                            transform: "rotateY(0deg)",
+                          }}
+                        >
+                          <Image
+                            src={giftCard.card_image_url || giftCard.card_template || "/placeholder.svg"}
+                            alt="Gift Card Front"
+                            fill
+                            className="object-cover pointer-events-none select-none"
+                            onContextMenu={(e) => e.preventDefault()}
+                            draggable={false}
+                          />
                         </div>
-                      )}
-                    </div>
 
-                    <div className="space-y-3 pt-4 border-t border-[#F6664C]/20">
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">From:</p>
-                        <p className="text-lg font-semibold text-gray-900">{giftCard.sender_name}</p>
-                      </div>
+                        {/* Back */}
+                        <div
+                          className="absolute inset-0 w-full h-full rounded-xl bg-gradient-to-br from-[#FFF7F5] to-[#fff0ed] p-6 flex flex-col justify-between shadow-lg border border-[#F6664C]/20"
+                          style={{
+                            backfaceVisibility: "hidden",
+                            WebkitBackfaceVisibility: "hidden",
+                            transform: "rotateY(180deg)",
+                          }}
+                        >
+                          <div className="space-y-4">
+                            <div>
+                              <p className="text-sm text-gray-500 mb-1">To:</p>
+                              <p className="text-xl font-bold text-[#185F72]">{giftCard.recipient_name}</p>
+                            </div>
 
-                      {giftCard.amount > 0 && (
-                        <div className="bg-white rounded-lg p-4 text-center">
-                          <p className="text-sm text-gray-600 mb-1">Gift Amount</p>
-                          <p className="text-3xl font-bold text-[#F6664C]">£{giftCard.amount}</p>
+                            {giftCard.message && (
+                              <div>
+                                <p className="text-sm text-gray-500 mb-1">Message:</p>
+                                <p className="text-sm text-gray-700 italic leading-relaxed">{giftCard.message}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="space-y-3 pt-4 border-t border-[#F6664C]/20">
+                            <div>
+                              <p className="text-sm text-gray-500 mb-1">From:</p>
+                              <p className="text-lg font-semibold text-gray-900">{giftCard.sender_name}</p>
+                            </div>
+
+                            {giftCard.amount > 0 && (
+                              <div className="bg-white rounded-lg p-4 text-center">
+                                <p className="text-sm text-gray-600 mb-1">Gift Amount</p>
+                                <p className="text-3xl font-bold text-[#F6664C]">£{giftCard.amount}</p>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
+                      </div>
                     </div>
+                    <p className="text-center text-sm text-gray-500 mt-3">Click card to flip</p>
                   </div>
                 </div>
               </div>
@@ -259,7 +292,7 @@ export default function ClaimRewardPage() {
               {/* Withdrawal Form */}
               {giftCard.amount > 0 && (
                 <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 animate-in fade-in zoom-in duration-700 delay-200">
-                  <div className="mb-6">
+                  <div className="mb-6 text-center">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Claim Your £{giftCard.amount}</h2>
                     <p className="text-gray-600">
                       Enter your bank account details below to receive your gift via Stripe

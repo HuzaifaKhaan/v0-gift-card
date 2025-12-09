@@ -295,57 +295,87 @@ export default function RewardClaimPage() {
             <p className="text-gray-600">From {giftCard.sender_name}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 max-w-5xl mx-auto">
-            {/* Front Card */}
-            <div className="animate-in fade-in slide-in-from-left duration-500">
-              <p className="text-center text-sm font-semibold text-gray-700 mb-3">Front</p>
-              <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-2xl">
-                {giftCard.card_image_url ? (
-                  <Image
-                    src={giftCard.card_image_url || "/placeholder.svg"}
-                    alt="Gift Card Front"
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#F6664C] to-[#FF8A6C] flex items-center justify-center">
-                    <Gift className="w-24 h-24 text-white" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Back Card */}
-            <div className="animate-in fade-in slide-in-from-right duration-500 delay-100">
-              <p className="text-center text-sm font-semibold text-gray-700 mb-3">Back</p>
-              <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#FFF5F0] to-[#FFE8DD] flex flex-col items-center justify-center p-8 text-center border-2 border-[#F6664C]/20">
-                <div className="space-y-5 text-[#185F72]">
-                  <div>
-                    <p className="text-sm font-medium opacity-70 mb-2">To</p>
-                    <p className="text-2xl font-bold">{giftCard.recipient_name}</p>
-                  </div>
-
-                  {giftCard.message && (
-                    <div className="py-4 border-y border-current/20">
-                      <p className="text-base leading-relaxed italic">"{giftCard.message}"</p>
-                    </div>
-                  )}
-
-                  <div>
-                    <p className="text-sm font-medium opacity-70 mb-1">From</p>
-                    <p className="text-xl font-semibold">{giftCard.sender_name}</p>
-                  </div>
-
-                  {giftCard.amount > 0 && (
-                    <div className="pt-4 border-t border-current/20">
-                      <p className="text-sm opacity-70 mb-1">Gift Amount</p>
-                      <p className="text-4xl font-bold text-[#F6664C]">£{giftCard.amount}</p>
+          <div className="max-w-md mx-auto mb-8">
+            <div
+              className="cursor-pointer"
+              style={{
+                perspective: "1000px",
+                WebkitPerspective: "1000px",
+              }}
+            >
+              <div
+                className="relative w-full aspect-[3/4] rounded-xl shadow-2xl"
+                style={{
+                  transformStyle: "preserve-3d",
+                  WebkitTransformStyle: "preserve-3d",
+                  transition: "transform 0.6s",
+                  transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                }}
+                onClick={() => setIsFlipped(!isFlipped)}
+              >
+                {/* Front */}
+                <div
+                  className="absolute inset-0 w-full h-full rounded-xl overflow-hidden"
+                  style={{
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
+                    transform: "rotateY(0deg)",
+                  }}
+                >
+                  {giftCard.card_image_url ? (
+                    <Image
+                      src={giftCard.card_image_url || "/placeholder.svg"}
+                      alt="Gift Card Front"
+                      fill
+                      className="object-cover pointer-events-none select-none"
+                      priority
+                      onContextMenu={(e) => e.preventDefault()}
+                      draggable={false}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#F6664C] to-[#FF8A6C] flex items-center justify-center">
+                      <Gift className="w-24 h-24 text-white" />
                     </div>
                   )}
                 </div>
+
+                {/* Back */}
+                <div
+                  className="absolute inset-0 w-full h-full rounded-xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#FFF5F0] to-[#FFE8DD] flex flex-col items-center justify-center p-8 text-center border-2 border-[#F6664C]/20"
+                  style={{
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
+                    transform: "rotateY(180deg)",
+                  }}
+                >
+                  <div className="space-y-5 text-[#185F72]">
+                    <div>
+                      <p className="text-sm font-medium opacity-70 mb-2">To</p>
+                      <p className="text-2xl font-bold">{giftCard.recipient_name}</p>
+                    </div>
+
+                    {giftCard.message && (
+                      <div className="py-4 border-y border-current/20">
+                        <p className="text-base leading-relaxed italic">"{giftCard.message}"</p>
+                      </div>
+                    )}
+
+                    <div>
+                      <p className="text-sm font-medium opacity-70 mb-1">From</p>
+                      <p className="text-xl font-semibold">{giftCard.sender_name}</p>
+                    </div>
+
+                    {giftCard.amount > 0 && (
+                      <div className="pt-4 border-t border-current/20">
+                        <p className="text-sm opacity-70 mb-1">Gift Amount</p>
+                        <p className="text-4xl font-bold text-[#F6664C]">£{giftCard.amount}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
+            <p className="text-center text-sm text-gray-500 mt-3">Click card to flip</p>
           </div>
           {/* </CHANGE> */}
 
