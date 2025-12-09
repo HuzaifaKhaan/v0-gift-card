@@ -375,7 +375,7 @@ export default function Home() {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="item-4" className="border-b border-gray-200">
+                  <AccordionItem value="item-5" className="border-b border-gray-200">
                     <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
                       Can I personalise my card? 
                     </AccordionTrigger>
