@@ -256,17 +256,28 @@ If you have any questions, please reply to this email or contact us at support@l
 
 export async function getGiftCardByCode(uniqueCode: string) {
   try {
+    console.log("[v0] Fetching gift card with code:", uniqueCode)
+
     const { data, error } = await supabase.from("gift_cards").select("*").eq("unique_code", uniqueCode).single()
 
     if (error) {
-      console.error("[v0] Error fetching gift card:", error)
-      return { error: error.message }
+      console.error("[v0] Supabase error fetching gift card:", error)
+      // Return a structured error response
+      return { data: null, error: error.message || "Gift card not found" }
     }
 
-    return { data }
+    if (!data) {
+      console.error("[v0] No data returned for gift card")
+      return { data: null, error: "Gift card not found" }
+    }
+
+    console.log("[v0] Gift card fetched successfully")
+    return { data, error: null }
   } catch (error: any) {
-    console.error("[v0] Error in getGiftCardByCode:", error)
-    return { error: error?.message || "Failed to fetch gift card" }
+    // Handle unexpected errors (like rate limiting, network issues, etc.)
+    console.error("[v0] Unexpected error in getGiftCardByCode:", error)
+    const errorMessage = typeof error === "string" ? error : error?.message || "Failed to fetch gift card"
+    return { data: null, error: errorMessage }
   }
 }
 
