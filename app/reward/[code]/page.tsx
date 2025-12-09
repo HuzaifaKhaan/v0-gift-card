@@ -7,8 +7,18 @@ import { Header } from "@/components/header"
 import { BankAccountForm } from "@/components/bank-account-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { decodeGiftCode, getGiftCardByCode, updateGiftCardStatus } from "@/app/actions/gift-cards"
-import { Gift, Clock, Check, X } from "lucide-react"
+import { Gift, Clock, Check, X, ShieldCheck, AlertCircle } from "lucide-react"
 
 export default function RewardClaimPage() {
   const params = useParams()
@@ -20,6 +30,10 @@ export default function RewardClaimPage() {
   const [error, setError] = useState("")
   const [showBankForm, setShowBankForm] = useState(false)
   const [claimSuccess, setClaimSuccess] = useState(false)
+  const [showAuthDialog, setShowAuthDialog] = useState(false)
+  const [enteredCode, setEnteredCode] = useState("")
+  const [authError, setAuthError] = useState("")
+  const [isVerifying, setIsVerifying] = useState(false)
 
   useEffect(() => {
     loadGiftCard()
@@ -57,11 +71,43 @@ export default function RewardClaimPage() {
   }
 
   const handleClaimClick = () => {
-    if (giftCard.amount > 0) {
-      setShowBankForm(true)
-    } else {
-      // Card only, no bank details needed
-      markAsClaimed()
+    setShowAuthDialog(true)
+    setEnteredCode("")
+    setAuthError("")
+  }
+
+  const handleVerifyCode = async () => {
+    if (!enteredCode.trim()) {
+      setAuthError("Please enter your unique code")
+      return
+    }
+
+    setIsVerifying(true)
+    setAuthError("")
+
+    try {
+      const decodedUniqueCode = await decodeGiftCode(encodedCode)
+
+      // Compare entered code with the actual unique code
+      if (enteredCode.trim().toUpperCase() === decodedUniqueCode.toUpperCase()) {
+        // Code matches! Close dialog and proceed
+        setShowAuthDialog(false)
+        setEnteredCode("")
+
+        if (giftCard.amount > 0) {
+          setShowBankForm(true)
+        } else {
+          // Card only, no bank details needed
+          markAsClaimed()
+        }
+      } else {
+        setAuthError("Incorrect unique code. Please check and try again.")
+      }
+    } catch (err) {
+      console.error("[v0] Error verifying code:", err)
+      setAuthError("Unable to verify code. Please try again.")
+    } finally {
+      setIsVerifying(false)
     }
   }
 
@@ -256,6 +302,83 @@ export default function RewardClaimPage() {
           </Card>
         </div>
       </div>
+
+      {/* Authentication Dialog */}
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-[#FFF7F5]">
+              <ShieldCheck className="w-6 h-6 text-[#F6664C]" />
+            </div>
+            <DialogTitle className="text-center text-xl">Verify Your Identity</DialogTitle>
+            <DialogDescription className="text-center">
+              Please enter your unique code to claim this gift. You should have received this code via email or from the
+              sender.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="unique-code">Unique Code</Label>
+              <Input
+                id="unique-code"
+                placeholder="Enter your unique code"
+                value={enteredCode}
+                onChange={(e) => {
+                  setEnteredCode(e.target.value)
+                  setAuthError("")
+                }}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handleVerifyCode()
+                  }
+                }}
+                className="text-lg font-mono tracking-wider uppercase"
+                maxLength={20}
+                autoFocus
+              />
+              {authError && (
+                <div className="flex items-center gap-2 text-sm text-red-600 mt-2">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{authError}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+              <p className="font-semibold mb-1">💡 Where to find your code:</p>
+              <ul className="list-disc list-inside space-y-1 text-xs">
+                <li>Check the email sent to you by the sender</li>
+                <li>Ask the sender for the unique code</li>
+                <li>It's a combination of letters and numbers</li>
+              </ul>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowAuthDialog(false)
+                setEnteredCode("")
+                setAuthError("")
+              }}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleVerifyCode}
+              disabled={isVerifying || !enteredCode.trim()}
+              className="w-full sm:w-auto bg-[#F6664C] hover:bg-[#e55540] text-white"
+            >
+              {isVerifying ? "Verifying..." : "Verify & Continue"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
