@@ -17,6 +17,7 @@ export default function ClaimRewardPage() {
   const [error, setError] = useState("")
   const [giftCard, setGiftCard] = useState<any>(null)
   const [isFlipped, setIsFlipped] = useState(false)
+  const [showWithdrawalForm, setShowWithdrawalForm] = useState(false)
 
   const handleValidateCode = async () => {
     if (!uniqueCode.trim()) {
@@ -205,10 +206,10 @@ export default function ClaimRewardPage() {
                 <p className="text-gray-600">View your card and claim your reward below</p>
               </div>
 
-              <div className="max-w-4xl mx-auto mb-8">
-                <div className="flex flex-col md:flex-row gap-6">
+              <div className="max-w-2xl mx-auto mb-8">
+                <div className="flex justify-center">
                   {/* Front Card with Flip */}
-                  <div className="flex-1 animate-in fade-in slide-in-from-left duration-700">
+                  <div className="w-full max-w-sm animate-in fade-in slide-in-from-bottom duration-700">
                     <div
                       className="cursor-pointer"
                       style={{
@@ -289,8 +290,20 @@ export default function ClaimRewardPage() {
                 </div>
               </div>
 
-              {/* Withdrawal Form */}
-              {giftCard.amount > 0 && (
+              {giftCard.amount > 0 && !showWithdrawalForm && (
+                <div className="max-w-md mx-auto text-center animate-in fade-in zoom-in duration-700 delay-200">
+                  <Button
+                    onClick={() => setShowWithdrawalForm(true)}
+                    className="w-full h-16 text-xl font-semibold bg-gradient-to-r from-[#F6664C] to-[#ff8c73] hover:from-[#e55a43] hover:to-[#ff7b5e] text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] rounded-xl"
+                  >
+                    <Gift className="w-6 h-6 mr-2" />
+                    Ready to claim your gift?
+                  </Button>
+                </div>
+              )}
+
+              {/* Withdrawal Form - only show when button is clicked */}
+              {giftCard.amount > 0 && showWithdrawalForm && (
                 <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 animate-in fade-in zoom-in duration-700 delay-200">
                   <div className="mb-6 text-center">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Claim Your £{giftCard.amount}</h2>
