@@ -7,14 +7,7 @@ import { Header } from "@/components/header"
 import { BankAccountForm } from "@/components/bank-account-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { decodeGiftCode, getGiftCardByCode, updateGiftCardStatus } from "@/app/actions/gift-cards"
@@ -305,26 +298,25 @@ export default function RewardClaimPage() {
 
       {/* Authentication Dialog */}
       <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent className="sm:max-w-md border-2 border-[#F6664C]/20 shadow-2xl">
-          <DialogHeader>
-            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#F6664C] to-[#FF8A6C] shadow-lg">
+        <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl p-0 overflow-hidden">
+          <div className="bg-gradient-to-br from-[#F6664C] to-[#FF8A6C] p-6 text-center">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-3 rounded-full bg-white/20 backdrop-blur-sm shadow-lg">
               <ShieldCheck className="w-8 h-8 text-white" />
             </div>
-            <DialogTitle className="text-center text-2xl font-bold text-[#185F72]">Verify Your Identity</DialogTitle>
-            <DialogDescription className="text-center text-gray-600">
-              Please enter your unique code to claim this gift. You should have received this code via email or from the
-              sender.
+            <DialogTitle className="text-center text-2xl font-bold text-white mb-2">Verify Your Identity</DialogTitle>
+            <DialogDescription className="text-center text-white/90 text-sm">
+              Enter your unique code to claim this gift
             </DialogDescription>
-          </DialogHeader>
+          </div>
 
-          <div className="space-y-4 py-4">
+          <div className="p-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="unique-code" className="text-[#185F72] font-semibold">
+              <Label htmlFor="unique-code" className="text-[#185F72] font-semibold text-sm">
                 Unique Code
               </Label>
               <Input
                 id="unique-code"
-                placeholder="Enter your unique code"
+                placeholder="Enter your code"
                 value={enteredCode}
                 onChange={(e) => {
                   setEnteredCode(e.target.value)
@@ -335,31 +327,40 @@ export default function RewardClaimPage() {
                     handleVerifyCode()
                   }
                 }}
-                className="text-lg font-mono tracking-wider uppercase border-2 border-gray-300 focus:border-[#F6664C] focus:ring-[#F6664C] rounded-lg py-6"
+                className="text-lg font-mono tracking-wider uppercase border-2 border-gray-300 focus:border-[#F6664C] focus:ring-2 focus:ring-[#F6664C]/20 rounded-lg py-6 text-center bg-gray-50 focus:bg-white transition-colors"
                 maxLength={20}
                 autoFocus
               />
               {authError && (
-                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3 mt-2">
+                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border-2 border-red-200 rounded-lg p-3 mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   <span>{authError}</span>
                 </div>
               )}
             </div>
 
-            <div className="bg-[#FFF7F5] border-2 border-[#F6664C]/30 rounded-lg p-4 text-sm">
+            <div className="bg-gradient-to-br from-[#FFF7F5] to-[#FFF0ED] border-2 border-[#F6664C]/30 rounded-xl p-4 text-sm shadow-sm">
               <p className="font-semibold text-[#185F72] mb-2 flex items-center gap-2">
                 <span className="text-lg">💡</span> Where to find your code:
               </p>
-              <ul className="list-disc list-inside space-y-1.5 text-gray-700 ml-1">
-                <li>Check the email sent to you by the sender</li>
-                <li>Ask the sender for the unique code</li>
-                <li>It's a combination of letters and numbers</li>
+              <ul className="space-y-2 text-gray-700 ml-1">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#F6664C] font-bold mt-0.5">•</span>
+                  <span>Check the email sent by the sender</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#F6664C] font-bold mt-0.5">•</span>
+                  <span>Ask the sender for the unique code</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#F6664C] font-bold mt-0.5">•</span>
+                  <span>It's a combination of letters and numbers</span>
+                </li>
               </ul>
             </div>
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 p-6 pt-0">
             <Button
               type="button"
               variant="outline"
@@ -368,7 +369,7 @@ export default function RewardClaimPage() {
                 setEnteredCode("")
                 setAuthError("")
               }}
-              className="w-full sm:w-auto border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold"
+              className="w-full sm:w-auto border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-6 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               Cancel
             </Button>
@@ -376,7 +377,7 @@ export default function RewardClaimPage() {
               type="button"
               onClick={handleVerifyCode}
               disabled={isVerifying || !enteredCode.trim()}
-              className="w-full sm:w-auto bg-[#F6664C] hover:bg-[#e55540] text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto bg-gradient-to-r from-[#F6664C] to-[#FF8A6C] hover:from-[#e55540] hover:to-[#ff7a5a] text-white font-semibold py-6 rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
             >
               {isVerifying ? (
                 <>
@@ -384,10 +385,13 @@ export default function RewardClaimPage() {
                   Verifying...
                 </>
               ) : (
-                "Verify & Continue"
+                <>
+                  <ShieldCheck className="w-5 h-5 mr-2" />
+                  Verify & Continue
+                </>
               )}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </>
