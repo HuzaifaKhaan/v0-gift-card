@@ -28,6 +28,7 @@ export default function RewardClaimPage() {
   const [enteredCode, setEnteredCode] = useState("")
   const [authError, setAuthError] = useState("")
   const [isVerifying, setIsVerifying] = useState(false)
+  const [isFlipped, setIsFlipped] = useState(false)
 
   useEffect(() => {
     setIsLoading(false)
@@ -288,67 +289,149 @@ export default function RewardClaimPage() {
     <>
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 py-8 px-4">
-        <div className="max-w-2xl mx-auto">
-          <Card className="shadow-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-[#F6664C] to-[#FF8A6C] p-6 text-center text-white">
-              <Gift className="w-12 h-12 mx-auto mb-3" />
-              <h1 className="text-3xl font-bold mb-2">You've Got a Gift!</h1>
-              <p className="text-white/90">From {giftCard.sender_name}</p>
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8 animate-in fade-in slide-in-from-top duration-500">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Your Gift Card</h1>
+            <p className="text-gray-600">From {giftCard.sender_name}</p>
+          </div>
+
+          <div className="mb-8">
+            <div className="flex justify-center mb-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsFlipped(!isFlipped)}
+                className="text-sm text-gray-600 hover:text-[#F6664C] border-gray-300 hover:border-[#F6664C] transition-colors"
+              >
+                {isFlipped ? "Show Front" : "Show Back"}
+              </Button>
             </div>
 
-            <CardContent className="p-6 space-y-6">
-              {giftCard.card_image_url && (
-                <div className="flex justify-center">
-                  <div className="relative w-64 h-80 rounded-xl overflow-hidden shadow-lg">
+            <div
+              className="relative w-full max-w-md mx-auto cursor-pointer"
+              style={{ perspective: "1000px" }}
+              onClick={() => setIsFlipped(!isFlipped)}
+            >
+              <div
+                className="relative w-full aspect-[3/4] transition-transform duration-700"
+                style={{
+                  transformStyle: "preserve-3d",
+                  transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                  WebkitTransformStyle: "preserve-3d",
+                  WebkitTransform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                }}
+              >
+                <div
+                  className="absolute inset-0 w-full h-full rounded-xl overflow-hidden shadow-2xl"
+                  style={{
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
+                    transform: "rotateY(0deg)",
+                    WebkitTransform: "rotateY(0deg)",
+                  }}
+                >
+                  {giftCard.card_image_url ? (
                     <Image
                       src={giftCard.card_image_url || "/placeholder.svg"}
-                      alt="Gift Card"
+                      alt="Gift Card Front"
                       fill
                       className="object-cover"
+                      priority
                     />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#F6664C] to-[#FF8A6C] flex items-center justify-center">
+                      <Gift className="w-24 h-24 text-white" />
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  className="absolute inset-0 w-full h-full rounded-xl overflow-hidden shadow-2xl flex flex-col items-center justify-center p-8 text-center"
+                  style={{
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
+                    transform: "rotateY(180deg)",
+                    WebkitTransform: "rotateY(180deg)",
+                    backgroundColor: "#FFF5F0",
+                    color: "#185F72",
+                  }}
+                >
+                  <div className="space-y-5">
+                    <div>
+                      <p className="text-sm font-medium opacity-70 mb-2">To</p>
+                      <p className="text-2xl font-bold">{giftCard.recipient_name}</p>
+                    </div>
+
+                    {giftCard.message && (
+                      <div className="py-4 border-y border-current/20">
+                        <p className="text-base leading-relaxed italic">"{giftCard.message}"</p>
+                      </div>
+                    )}
+
+                    <div>
+                      <p className="text-sm font-medium opacity-70 mb-1">From</p>
+                      <p className="text-xl font-semibold">{giftCard.sender_name}</p>
+                    </div>
+
+                    {giftCard.amount > 0 && (
+                      <div className="pt-4 border-t border-current/20">
+                        <p className="text-sm opacity-70 mb-1">Gift Amount</p>
+                        <p className="text-4xl font-bold">£{giftCard.amount}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
+            </div>
 
-              {giftCard.message && (
-                <div className="bg-[#FFF7F5] border-l-4 border-[#F6664C] p-4 rounded-r-lg">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Personal Message:</p>
-                  <p className="text-gray-800 italic">"{giftCard.message}"</p>
+            <p className="text-center text-sm text-gray-500 mt-4">Click card to flip</p>
+          </div>
+
+          {giftCard.amount > 0 && (
+            <Card className="max-w-lg mx-auto shadow-xl animate-in fade-in duration-500 delay-200">
+              <CardContent className="p-6 sm:p-8">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                    <Gift className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-[#185F72] mb-2">Ready to claim your gift?</h2>
+                  <p className="text-gray-600">Securely withdraw your cash gift to your bank account</p>
                 </div>
-              )}
 
-              {giftCard.amount > 0 && (
-                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 text-center">
-                  <p className="text-gray-600 text-sm mb-1">Cash Gift Amount</p>
-                  <p className="text-5xl font-bold text-green-600">£{giftCard.amount}</p>
-                </div>
-              )}
+                <Button
+                  onClick={handleClaimClick}
+                  className="w-full bg-[#F6664C] hover:bg-[#e55540] text-white py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Claim £{giftCard.amount} Now
+                </Button>
 
-              <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
-                <div className="flex justify-between">
+                <p className="text-xs text-gray-500 text-center mt-4">🔒 Secure transaction powered by Stripe</p>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card className="max-w-lg mx-auto mt-6 shadow-lg">
+            <CardContent className="p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Gift Details</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between border-b border-gray-100 pb-2">
                   <span className="text-gray-600">To:</span>
                   <span className="font-semibold">{giftCard.recipient_name}</span>
                 </div>
                 {giftCard.recipient_email && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between border-b border-gray-100 pb-2">
                     <span className="text-gray-600">Email:</span>
                     <span className="font-semibold">{giftCard.recipient_email}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
+                <div className="flex justify-between border-b border-gray-100 pb-2">
                   <span className="text-gray-600">From:</span>
                   <span className="font-semibold">{giftCard.sender_name}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status:</span>
+                  <span className="font-semibold text-green-600">{giftCard.status}</span>
+                </div>
               </div>
-
-              <Button
-                onClick={handleClaimClick}
-                className="w-full bg-[#F6664C] hover:bg-[#e55540] text-white py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
-              >
-                {giftCard.amount > 0 ? `Claim £${giftCard.amount} Now` : "Claim Gift Card"}
-              </Button>
-
-              <p className="text-xs text-gray-500 text-center">🔒 Secure transaction powered by Stripe</p>
             </CardContent>
           </Card>
         </div>
