@@ -10,8 +10,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { decodeGiftCode, getGiftCardByCode, updateGiftCardStatus } from "@/app/actions/gift-cards"
-import { Gift, Clock, Check, X, ShieldCheck, AlertCircle } from "lucide-react"
+import { getGiftCardByCode, updateGiftCardStatus } from "@/app/actions/gift-cards"
+import { Gift, Clock, Check, ShieldCheck, AlertCircle } from "lucide-react"
 
 export default function RewardClaimPage() {
   const params = useParams()
@@ -23,51 +23,15 @@ export default function RewardClaimPage() {
   const [error, setError] = useState("")
   const [showBankForm, setShowBankForm] = useState(false)
   const [claimSuccess, setClaimSuccess] = useState(false)
-  const [showAuthDialog, setShowAuthDialog] = useState(false)
+  const [showAuthDialog, setShowAuthDialog] = useState(true)
+  const [isVerified, setIsVerified] = useState(false)
   const [enteredCode, setEnteredCode] = useState("")
   const [authError, setAuthError] = useState("")
   const [isVerifying, setIsVerifying] = useState(false)
 
   useEffect(() => {
-    loadGiftCard()
+    setIsLoading(false)
   }, [encodedCode])
-
-  const loadGiftCard = async () => {
-    try {
-      setIsLoading(true)
-      setError("")
-
-      const uniqueCode = await decodeGiftCode(encodedCode)
-      console.log("[v0] Decoded unique code:", uniqueCode)
-
-      const result = await getGiftCardByCode(uniqueCode)
-
-      if (result.error || !result.data) {
-        setError(result.error || "Gift card not found")
-        setIsLoading(false)
-        return
-      }
-
-      setGiftCard(result.data)
-
-      // Update status to Opened if not already
-      if (result.data.status === "Sent") {
-        await updateGiftCardStatus(uniqueCode, "Opened")
-      }
-
-      setIsLoading(false)
-    } catch (err: any) {
-      console.error("[v0] Error loading gift card:", err)
-      setError(err?.message || "Invalid or expired link")
-      setIsLoading(false)
-    }
-  }
-
-  const handleClaimClick = () => {
-    setShowAuthDialog(true)
-    setEnteredCode("")
-    setAuthError("")
-  }
 
   const handleVerifyCode = async () => {
     if (!enteredCode.trim()) {
@@ -79,22 +43,21 @@ export default function RewardClaimPage() {
     setAuthError("")
 
     try {
-      const decodedUniqueCode = await decodeGiftCode(encodedCode)
+      const result = await getGiftCardByCode(enteredCode.trim())
 
-      // Compare entered code with the actual unique code
-      if (enteredCode.trim().toUpperCase() === decodedUniqueCode.toUpperCase()) {
-        // Code matches! Close dialog and proceed
-        setShowAuthDialog(false)
-        setEnteredCode("")
+      if (result.error || !result.data) {
+        setAuthError("Invalid unique code. Please check and try again.")
+        setIsVerifying(false)
+        return
+      }
 
-        if (giftCard.amount > 0) {
-          setShowBankForm(true)
-        } else {
-          // Card only, no bank details needed
-          markAsClaimed()
-        }
-      } else {
-        setAuthError("Incorrect unique code. Please check and try again.")
+      setGiftCard(result.data)
+      setIsVerified(true)
+      setShowAuthDialog(false)
+      setEnteredCode("")
+
+      if (result.data.status === "Sent") {
+        await updateGiftCardStatus(enteredCode.trim(), "Opened")
       }
     } catch (err) {
       console.error("[v0] Error verifying code:", err)
@@ -104,10 +67,17 @@ export default function RewardClaimPage() {
     }
   }
 
+  const handleClaimClick = () => {
+    if (giftCard.amount > 0) {
+      setShowBankForm(true)
+    } else {
+      markAsClaimed()
+    }
+  }
+
   const markAsClaimed = async () => {
     try {
-      const uniqueCode = await decodeGiftCode(encodedCode)
-      await updateGiftCardStatus(uniqueCode, "Claimed")
+      await updateGiftCardStatus(giftCard.unique_code, "Claimed")
       setClaimSuccess(true)
     } catch (err) {
       console.error("[v0] Error marking as claimed:", err)
@@ -133,23 +103,134 @@ export default function RewardClaimPage() {
     )
   }
 
-  if (error) {
+  if (!isVerified) {
     return (
       <>
         <Header />
         <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 flex items-center justify-center p-4">
           <Card className="max-w-md w-full shadow-xl">
             <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                <X className="w-8 h-8 text-red-600" />
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-[#F6664C] to-[#FF8A6C] rounded-full flex items-center justify-center shadow-lg">
+                <Gift className="w-8 h-8 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Oops!</h2>
-              <p className="text-gray-600 mb-6">{error}</p>
-              <Button onClick={() => router.push("/")} className="bg-[#F6664C] hover:bg-[#e55540] text-white">
-                Go to Homepage
-              </Button>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Claim Your Gift</h2>
+              <p className="text-gray-600 mb-6">Enter your unique code to view and claim your gift card</p>
             </CardContent>
           </Card>
+
+          <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+            <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl p-0 overflow-hidden">
+              <div className="bg-gradient-to-br from-[#F6664C] to-[#FF8A6C] p-6 text-center">
+                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-3 rounded-full bg-white/20 backdrop-blur-sm shadow-lg">
+                  <ShieldCheck className="w-8 h-8 text-white" />
+                </div>
+                <DialogTitle className="text-center text-2xl font-bold text-white mb-2">
+                  Verify Your Identity
+                </DialogTitle>
+                <DialogDescription className="text-center text-white/90 text-sm">
+                  Enter your unique code to claim this gift
+                </DialogDescription>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="unique-code" className="text-[#185F72] font-semibold text-sm">
+                    Unique Code
+                  </Label>
+                  <Input
+                    id="unique-code"
+                    placeholder="Enter your code"
+                    value={enteredCode}
+                    onChange={(e) => {
+                      setEnteredCode(e.target.value)
+                      setAuthError("")
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleVerifyCode()
+                      }
+                    }}
+                    className="text-lg font-mono tracking-wider uppercase border-2 border-gray-300 focus:border-[#F6664C] focus:ring-2 focus:ring-[#F6664C]/20 rounded-lg py-6 text-center bg-gray-50 focus:bg-white transition-colors"
+                    maxLength={20}
+                    autoFocus
+                  />
+                  {authError && (
+                    <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border-2 border-red-200 rounded-lg p-3 mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      <span>{authError}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-gradient-to-br from-[#FFF7F5] to-[#FFF0ED] border-2 border-[#F6664C]/30 rounded-xl p-4 text-sm shadow-sm">
+                  <p className="font-semibold text-[#185F72] mb-2 flex items-center gap-2">
+                    <span className="text-lg">💡</span> Where to find your code:
+                  </p>
+                  <ul className="space-y-2 text-gray-700 ml-1">
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#F6664C] font-bold mt-0.5">•</span>
+                      <span>Check the email sent by the sender</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#F6664C] font-bold mt-0.5">•</span>
+                      <span>Ask the sender for the unique code</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#F6664C] font-bold mt-0.5">•</span>
+                      <span>It's a combination of letters and numbers</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 p-6 pt-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push("/")}
+                  className="w-full sm:w-auto border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-6 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleVerifyCode}
+                  disabled={isVerifying || !enteredCode.trim()}
+                  className="w-full sm:w-auto bg-gradient-to-r from-[#F6664C] to-[#FF8A6C] hover:from-[#e55540] hover:to-[#ff7a5a] text-white font-semibold py-6 rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  {isVerifying ? (
+                    <>
+                      <span className="animate-spin mr-2">⏳</span>
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-5 h-5 mr-2" />
+                      Verify & Continue
+                    </>
+                  )}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </>
+    )
+  }
+
+  if (showBankForm) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 flex items-center justify-center p-4">
+          <BankAccountForm
+            uniqueCode={giftCard.unique_code}
+            amount={giftCard.amount}
+            recipientEmail={giftCard.recipient_email}
+            recipientName={giftCard.recipient_name}
+            onSuccess={handlePayoutSuccess}
+            onCancel={() => setShowBankForm(false)}
+          />
         </div>
       </>
     )
@@ -176,24 +257,6 @@ export default function RewardClaimPage() {
               </Button>
             </CardContent>
           </Card>
-        </div>
-      </>
-    )
-  }
-
-  if (showBankForm) {
-    return (
-      <>
-        <Header />
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 flex items-center justify-center p-4">
-          <BankAccountForm
-            uniqueCode={giftCard.unique_code}
-            amount={giftCard.amount}
-            recipientEmail={giftCard.recipient_email}
-            recipientName={giftCard.recipient_name}
-            onSuccess={handlePayoutSuccess}
-            onCancel={() => setShowBankForm(false)}
-          />
         </div>
       </>
     )
@@ -234,7 +297,6 @@ export default function RewardClaimPage() {
             </div>
 
             <CardContent className="p-6 space-y-6">
-              {/* Card Preview */}
               {giftCard.card_image_url && (
                 <div className="flex justify-center">
                   <div className="relative w-64 h-80 rounded-xl overflow-hidden shadow-lg">
@@ -248,7 +310,6 @@ export default function RewardClaimPage() {
                 </div>
               )}
 
-              {/* Personal Message */}
               {giftCard.message && (
                 <div className="bg-[#FFF7F5] border-l-4 border-[#F6664C] p-4 rounded-r-lg">
                   <p className="text-sm font-semibold text-gray-700 mb-2">Personal Message:</p>
@@ -256,7 +317,6 @@ export default function RewardClaimPage() {
                 </div>
               )}
 
-              {/* Amount Display */}
               {giftCard.amount > 0 && (
                 <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 text-center">
                   <p className="text-gray-600 text-sm mb-1">Cash Gift Amount</p>
@@ -264,7 +324,6 @@ export default function RewardClaimPage() {
                 </div>
               )}
 
-              {/* Recipient Info */}
               <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">To:</span>
@@ -282,7 +341,6 @@ export default function RewardClaimPage() {
                 </div>
               </div>
 
-              {/* Claim Button */}
               <Button
                 onClick={handleClaimClick}
                 className="w-full bg-[#F6664C] hover:bg-[#e55540] text-white py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
@@ -295,105 +353,6 @@ export default function RewardClaimPage() {
           </Card>
         </div>
       </div>
-
-      {/* Authentication Dialog */}
-      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl p-0 overflow-hidden">
-          <div className="bg-gradient-to-br from-[#F6664C] to-[#FF8A6C] p-6 text-center">
-            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-3 rounded-full bg-white/20 backdrop-blur-sm shadow-lg">
-              <ShieldCheck className="w-8 h-8 text-white" />
-            </div>
-            <DialogTitle className="text-center text-2xl font-bold text-white mb-2">Verify Your Identity</DialogTitle>
-            <DialogDescription className="text-center text-white/90 text-sm">
-              Enter your unique code to claim this gift
-            </DialogDescription>
-          </div>
-
-          <div className="p-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="unique-code" className="text-[#185F72] font-semibold text-sm">
-                Unique Code
-              </Label>
-              <Input
-                id="unique-code"
-                placeholder="Enter your code"
-                value={enteredCode}
-                onChange={(e) => {
-                  setEnteredCode(e.target.value)
-                  setAuthError("")
-                }}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    handleVerifyCode()
-                  }
-                }}
-                className="text-lg font-mono tracking-wider uppercase border-2 border-gray-300 focus:border-[#F6664C] focus:ring-2 focus:ring-[#F6664C]/20 rounded-lg py-6 text-center bg-gray-50 focus:bg-white transition-colors"
-                maxLength={20}
-                autoFocus
-              />
-              {authError && (
-                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border-2 border-red-200 rounded-lg p-3 mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  <span>{authError}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="bg-gradient-to-br from-[#FFF7F5] to-[#FFF0ED] border-2 border-[#F6664C]/30 rounded-xl p-4 text-sm shadow-sm">
-              <p className="font-semibold text-[#185F72] mb-2 flex items-center gap-2">
-                <span className="text-lg">💡</span> Where to find your code:
-              </p>
-              <ul className="space-y-2 text-gray-700 ml-1">
-                <li className="flex items-start gap-2">
-                  <span className="text-[#F6664C] font-bold mt-0.5">•</span>
-                  <span>Check the email sent by the sender</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#F6664C] font-bold mt-0.5">•</span>
-                  <span>Ask the sender for the unique code</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#F6664C] font-bold mt-0.5">•</span>
-                  <span>It's a combination of letters and numbers</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 p-6 pt-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setShowAuthDialog(false)
-                setEnteredCode("")
-                setAuthError("")
-              }}
-              className="w-full sm:w-auto border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-6 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={handleVerifyCode}
-              disabled={isVerifying || !enteredCode.trim()}
-              className="w-full sm:w-auto bg-gradient-to-r from-[#F6664C] to-[#FF8A6C] hover:from-[#e55540] hover:to-[#ff7a5a] text-white font-semibold py-6 rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {isVerifying ? (
-                <>
-                  <span className="animate-spin mr-2">⏳</span>
-                  Verifying...
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="w-5 h-5 mr-2" />
-                  Verify & Continue
-                </>
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   )
 }
