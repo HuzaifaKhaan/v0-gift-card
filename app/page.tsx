@@ -338,21 +338,19 @@ export default function Home() {
                 <div className="space-y-3 sm:space-y-4">
                   <AccordionItem value="item-1" className="border-b border-gray-200">
                     <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      Can I send an ecard without becoming a member?
+                      How do I attach a cash gift?
                     </AccordionTrigger>
                     <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      Yes, you can send an ecard as a guest without creating an account. However, becoming a member
-                      gives you access to additional features and benefits.
+                      To attach a cash gift (you can send a card without cash too!), simply choose the amount you’d like to add in the card design page. It’s free to send cash and your money is kept safe using Stripe to handle payments. 
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="item-2" className="border-b border-gray-200">
                     <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      How do I send an ecard?
+                      How does the recipient receive the money? 
                     </AccordionTrigger>
                     <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      Simply choose a card, customize your message, optionally add a cash gift, and send it to your
-                      recipient's email. It's that easy!
+                      Your loved one will be able to claim the money you’ve attached to the card once they’ve opened the card. They’ll need to enter a unique code (you’ll have this in your email), bank details and the money will be released into their bank! 
                     </AccordionContent>
                   </AccordionItem>
                 </div>
@@ -361,21 +359,28 @@ export default function Home() {
                 <div className="space-y-3 sm:space-y-4">
                   <AccordionItem value="item-3" className="border-b border-gray-200">
                     <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      How much does a membership cost?
+                      What if the recipient doesn’t receive the card? 
                     </AccordionTrigger>
                     <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      We offer flexible membership plans starting at $9.99/month. Check our pricing page for detailed
-                      information on all available plans.
+                      The card will be sent to the recipient's email, if the email was incorrect, don’t worry! Nobody can open the card without the unique code, and you can always just share the link you get after checkout with them via text/messaging apps! 
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="item-4" className="border-b border-gray-200">
                     <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      How does your 7-day free trial work?
+                      What if the recipient enters the wrong bank details?
                     </AccordionTrigger>
                     <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      Start your free 7-day trial with full access to all features. No credit card required. Cancel
-                      anytime before the trial ends with no charges.
+                      Unfortunately, if the recipient enters the wrong bank details, LastMinuteCards is not responsible for losses due to this. This is stated in the Terms of Service, however we try our best to prevent this from happening. 
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="item-4" className="border-b border-gray-200">
+                    <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
+                      Can I personalise my card? 
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
+                      Yes! All cards are customisable, you can either use one our designs and add your own name/message. However, you can create your own card using an image of your choice. 
                     </AccordionContent>
                   </AccordionItem>
                 </div>
