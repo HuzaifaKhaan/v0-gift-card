@@ -63,9 +63,9 @@ function CheckoutContent() {
         senderName: cardData.senderName || "Anonymous",
         senderEmail: cardData.senderEmail || "",
         recipientName: cardData.recipientName,
-        recipientEmail: cardData.email,
+        recipientEmail: cardData.email || "",
         amount: cardData.amount,
-        message: cardData.message,
+        message: cardData.message || "",
         cardTemplate: cardData.cardCategory || "Custom",
         cardImageUrl: cardData.cardImage || "",
         uniqueCode: uniqueCode,
@@ -216,21 +216,25 @@ function CheckoutContent() {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                      <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C] flex-shrink-0" />
-                      <span className="text-gray-600">Email address:</span>
-                      <span className="font-medium text-[#185F72] ml-auto truncate max-w-[120px] sm:max-w-[180px]">
-                        {cardData.email}
-                      </span>
-                    </div>
+                    {cardData.email && (
+                      <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                        <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C] flex-shrink-0" />
+                        <span className="text-gray-600">Email address:</span>
+                        <span className="font-medium text-[#185F72] ml-auto truncate max-w-[120px] sm:max-w-[180px]">
+                          {cardData.email}
+                        </span>
+                      </div>
+                    )}
 
-                    <div className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm">
-                      <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C] mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-600">Message:</span>
-                      <span className="font-medium text-[#185F72] ml-auto text-right max-w-[120px] sm:max-w-[180px] line-clamp-2">
-                        {cardData.message}
-                      </span>
-                    </div>
+                    {cardData.message && (
+                      <div className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm">
+                        <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C] mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-600">Message:</span>
+                        <span className="font-medium text-[#185F72] ml-auto text-right max-w-[120px] sm:max-w-[180px] line-clamp-2">
+                          {cardData.message}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="border-t border-gray-100 mt-4 sm:mt-6 pt-3 sm:pt-4">
@@ -327,9 +331,9 @@ function CheckoutContent() {
                   <StripeCheckout
                     amount={totalAmount}
                     recipientName={cardData.recipientName}
-                    recipientEmail={cardData.email}
+                    recipientEmail={cardData.email || ""}
                     senderName={cardData.senderName || "Anonymous"}
-                    message={cardData.message}
+                    message={cardData.message || ""}
                     uniqueCode={uniqueCode}
                     onComplete={handlePaymentComplete}
                   />

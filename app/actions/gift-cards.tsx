@@ -28,7 +28,7 @@ export async function createGiftCard({
   senderName: string
   senderEmail: string
   recipientName: string
-  recipientEmail: string
+  recipientEmail: string // Can be empty string
   amount: number
   message: string
   cardTemplate: string
@@ -44,7 +44,7 @@ export async function createGiftCard({
         sender_name: senderName,
         sender_email: senderEmail,
         recipient_name: recipientName,
-        recipient_email: recipientEmail,
+        recipient_email: recipientEmail || "",
         amount: amount,
         message: message,
         card_template: cardTemplate,
@@ -62,31 +62,32 @@ export async function createGiftCard({
       return { error: error.message }
     }
 
-    try {
-      // Validate environment variables
-      if (!process.env.RESEND_API_KEY) {
-        console.error("[v0] RESEND_API_KEY not configured")
-        throw new Error("Email service not configured")
-      }
+    if (recipientEmail && recipientEmail.trim() !== "") {
+      try {
+        // Validate environment variables
+        if (!process.env.RESEND_API_KEY) {
+          console.error("[v0] RESEND_API_KEY not configured")
+          throw new Error("Email service not configured")
+        }
 
-      const fromEmail = process.env.RESEND_FROM_EMAIL || "LastMinuteCards <hello@lastminutecards.com>"
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://lastminutecards.vercel.app"
-      const viewLink = `${appUrl}/view?code=${uniqueCode}`
+        const fromEmail = process.env.RESEND_FROM_EMAIL || "LastMinuteCards <hello@lastminutecards.com>"
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://lastminutecards.vercel.app"
+        const viewLink = `${appUrl}/view?code=${uniqueCode}`
 
-      console.log("[v0] Sending email to:", recipientEmail)
-      console.log("[v0] From:", fromEmail)
-      console.log("[v0] View link:", viewLink)
+        console.log("[v0] Sending email to:", recipientEmail)
+        console.log("[v0] From:", fromEmail)
+        console.log("[v0] View link:", viewLink)
 
-      const emailResult = await resend.emails.send({
-        from: fromEmail,
-        replyTo: senderEmail || "support@lastminutecards.com",
-        to: recipientEmail,
-        subject: `${senderName} sent you a ${amount > 0 ? `£${amount} ` : ""}gift card`,
-        headers: {
-          "X-Entity-Ref-ID": uniqueCode,
-          "X-Priority": "1",
-        },
-        html: `
+        const emailResult = await resend.emails.send({
+          from: fromEmail,
+          replyTo: senderEmail || "support@lastminutecards.com",
+          to: recipientEmail,
+          subject: `${senderName} sent you a ${amount > 0 ? `£${amount} ` : ""}gift card`,
+          headers: {
+            "X-Entity-Ref-ID": uniqueCode,
+            "X-Priority": "1",
+          },
+          html: `
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -194,7 +195,7 @@ export async function createGiftCard({
           </body>
           </html>
         `,
-        text: `
+          text: `
 Hello ${recipientName},
 
 ${senderName} has sent you a gift card${amount > 0 ? ` worth £${amount}` : ""}!
@@ -209,29 +210,39 @@ If you have any questions, please reply to this email or contact us at support@l
 
 © ${new Date().getFullYear()} LastMinuteCards. All rights reserved.
         `.trim(),
-      })
+        })
 
-      console.log("[v0] Email sent successfully!")
-      console.log("[v0] Email ID:", emailResult.data?.id)
+        console.log("[v0] Email sent successfully!")
+        console.log("[v0] Email ID:", emailResult.data?.id)
 
-      if (emailResult.data?.id) {
+        if (emailResult.data?.id) {
+          await supabase
+            .from("gift_cards")
+            .update({
+              email_sent: true,
+              email_id: emailResult.data.id,
+            })
+            .eq("id", data.id)
+        }
+      } catch (emailError: any) {
+        console.error("[v0] Email send error:", emailError)
+        console.error("[v0] Error details:", JSON.stringify(emailError, null, 2))
+
         await supabase
           .from("gift_cards")
           .update({
-            email_sent: true,
-            email_id: emailResult.data.id,
+            email_sent: false,
+            email_error: emailError?.message || "Failed to send email",
           })
           .eq("id", data.id)
       }
-    } catch (emailError: any) {
-      console.error("[v0] Email send error:", emailError)
-      console.error("[v0] Error details:", JSON.stringify(emailError, null, 2))
-
+    } else {
+      console.log("[v0] No recipient email provided, skipping email send")
       await supabase
         .from("gift_cards")
         .update({
           email_sent: false,
-          email_error: emailError?.message || "Failed to send email",
+          email_error: "No recipient email provided",
         })
         .eq("id", data.id)
     }
@@ -285,5 +296,28 @@ export async function updateGiftCardStatus(uniqueCode: string, status: "Sent" | 
   } catch (error: any) {
     console.error("[v0] Error in updateGiftCardStatus:", error)
     return { error: error?.message || "Failed to update gift card status" }
+  }
+}
+
+export async function encodeGiftCode(uniqueCode: string): Promise<string> {
+  // Use base64 encoding to hide the code in URL
+  const encoder = new TextEncoder()
+  const data = encoder.encode(uniqueCode)
+  const base64 = btoa(String.fromCharCode(...data))
+  // Make it URL safe
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
+}
+
+export async function decodeGiftCode(encodedCode: string): Promise<string> {
+  try {
+    // Reverse URL safe encoding
+    const base64 = encodedCode.replace(/-/g, "+").replace(/_/g, "/")
+    // Add padding if needed
+    const padded = base64 + "==".substring(0, (4 - (base64.length % 4)) % 4)
+    const decoded = atob(padded)
+    return decoded
+  } catch (error) {
+    console.error("[v0] Error decoding gift code:", error)
+    throw new Error("Invalid gift code")
   }
 }
