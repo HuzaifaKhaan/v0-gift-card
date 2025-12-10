@@ -12,7 +12,6 @@ const navCategories = [
   { name: "Well Wishes", href: "/customize?category=Well Wishes" },
   { name: "Seasonal", href: "/customize?category=Seasonal" },
   { name: "Love and Relationships", href: "/customize?category=Love and Relationships" },
-  { name: "Claim Your Reward", href: "/claim-reward" },
 ]
 
 export function Header() {
@@ -135,14 +134,6 @@ export function Header() {
                 </div>
               </SheetContent>
             </Sheet>
-
-            {/* Claim Your Reward button - show on right side of navigation */}
-            <Link
-              href="/claim-reward"
-              className="px-3 xl:px-4 py-2 text-xs xl:text-sm font-medium text-gray-700 transition-colors hover:text-[#185F72] whitespace-nowrap rounded-md hover:bg-gray-50 cursor-pointer"
-            >
-              Claim Your Reward
-            </Link>
           </div>
         </div>
       </div>

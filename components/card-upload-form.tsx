@@ -51,6 +51,7 @@ export function CardUploadForm() {
 
     setIsUploading(true)
     setUploadStatus("idle")
+    console.log("[v0] Starting upload with:", { category: selectedCategory, name: cardName, fileSize: cardFile.size })
 
     try {
       const formData = new FormData()
@@ -58,13 +59,20 @@ export function CardUploadForm() {
       formData.append("category", selectedCategory)
       formData.append("name", cardName.trim())
 
+      console.log("[v0] Sending request to /api/admin/upload-card")
+
       const response = await fetch("/api/admin/upload-card", {
         method: "POST",
         body: formData,
       })
 
+      console.log("[v0] Response status:", response.status)
+
+      const data = await response.json()
+      console.log("[v0] Response data:", data)
+
       if (!response.ok) {
-        throw new Error("Upload failed")
+        throw new Error(data.details || data.error || "Upload failed")
       }
 
       setUploadStatus("success")
@@ -80,7 +88,7 @@ export function CardUploadForm() {
     } catch (error) {
       console.error("[v0] Upload error:", error)
       setUploadStatus("error")
-      setErrorMessage("Failed to upload card. Please try again.")
+      setErrorMessage(error instanceof Error ? error.message : "Failed to upload card. Please try again.")
     } finally {
       setIsUploading(false)
     }
@@ -119,9 +127,9 @@ export function CardUploadForm() {
               <SelectTrigger className="w-full border-gray-300 focus:border-[#F6664C] focus:ring-[#F6664C]">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent className="z-50">
+              <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
                 {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
+                  <SelectItem key={cat.value} value={cat.value} className="bg-white hover:bg-gray-100 cursor-pointer">
                     {cat.label}
                   </SelectItem>
                 ))}
