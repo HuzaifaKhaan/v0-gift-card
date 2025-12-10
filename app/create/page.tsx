@@ -255,8 +255,8 @@ export default function CreatePage() {
 
   const isFormValid =
     recipientName &&
-    // recipientEmail &&
-    // message &&
+    recipientEmail &&
+    message &&
     (includeGift ? getActualAmount() > 0 : true) &&
     (isAnonymous || senderName)
 
@@ -287,36 +287,23 @@ export default function CreatePage() {
               {/* Flip Card Container */}
               <div
                 className="relative mx-auto cursor-pointer"
-                style={{
-                  perspective: "1000px",
-                  maxWidth: "320px",
-                  WebkitPerspective: "1000px",
-                  transformStyle: "preserve-3d",
-                  WebkitTransformStyle: "preserve-3d",
-                }}
+                style={{ perspective: "1000px", maxWidth: "320px" }}
                 onClick={() => setIsFlipped(!isFlipped)}
               >
                 <div
-                  className="relative aspect-[3/4] w-full transition-transform duration-700"
+                  className="relative w-full transition-transform duration-700"
                   style={{
                     transformStyle: "preserve-3d",
-                    WebkitTransformStyle: "preserve-3d",
                     transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-                    WebkitTransform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                   }}
                 >
                   {/* Front of Card */}
                   <div
-                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
-                    style={{
-                      backfaceVisibility: "hidden",
-                      WebkitBackfaceVisibility: "hidden",
-                      transform: "rotateY(0deg)",
-                      WebkitTransform: "rotateY(0deg)",
-                    }}
+                    className="w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
+                    style={{ backfaceVisibility: "hidden" }}
                   >
                     <div
-                      className="w-full h-full relative flex flex-col items-center justify-center"
+                      className="aspect-[3/4] relative flex flex-col items-center justify-center"
                       style={{
                         backgroundColor,
                         ...getPatternStyle(),
@@ -365,12 +352,10 @@ export default function CreatePage() {
 
                   {/* Back of Card */}
                   <div
-                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#185F72] to-[#0d3d4a]"
+                    className="absolute inset-0 w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#185F72] to-[#0d3d4a]"
                     style={{
                       backfaceVisibility: "hidden",
-                      WebkitBackfaceVisibility: "hidden",
                       transform: "rotateY(180deg)",
-                      WebkitTransform: "rotateY(180deg)",
                     }}
                   >
                     <div className="aspect-[3/4] flex flex-col justify-between p-4 sm:p-6 text-white">
@@ -612,25 +597,18 @@ export default function CreatePage() {
                       </div>
                     </div>
 
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-700 mb-3 block">
-                        Text Size: <span className="text-[#F6664C] text-lg">{titleSize}px</span>
-                      </Label>
-                      <Slider
-                        value={[titleSize]}
-                        onValueChange={(value) => setTitleSize(value[0])}
-                        min={12}
-                        max={48}
-                        step={2}
-                        className="mt-2 h-3"
-                      />
-                      <div className="flex justify-between text-xs text-gray-500 mt-2">
-                        <span>Small (12px)</span>
-                        <span>Large (48px)</span>
-                      </div>
-                    </div>
-
                     <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-xs text-gray-600">Text Size: {titleSize}px</Label>
+                        <Slider
+                          value={[titleSize]}
+                          onValueChange={(value) => setTitleSize(value[0])}
+                          min={12}
+                          max={48}
+                          step={2}
+                          className="mt-1"
+                        />
+                      </div>
                       <div>
                         <Label className="text-xs text-gray-600 mb-2 block">Text Color</Label>
                         <input

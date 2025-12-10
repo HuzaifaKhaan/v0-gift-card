@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { Gift, Mail, User, MessageSquare, Copy, Check, X } from "lucide-react"
-import { createGiftCard, encodeGiftCode } from "@/app/actions/gift-cards"
+import { createGiftCard } from "@/app/actions/gift-cards"
 import StripeCheckout from "@/components/stripe-checkout"
 import CustomCardPreview from "@/components/custom-card-preview"
 
@@ -63,9 +63,9 @@ function CheckoutContent() {
         senderName: cardData.senderName || "Anonymous",
         senderEmail: cardData.senderEmail || "",
         recipientName: cardData.recipientName,
-        recipientEmail: cardData.email || "",
+        recipientEmail: cardData.email,
         amount: cardData.amount,
-        message: cardData.message || "",
+        message: cardData.message,
         cardTemplate: cardData.cardCategory || "Custom",
         cardImageUrl: cardData.cardImage || "",
         uniqueCode: uniqueCode,
@@ -82,9 +82,8 @@ function CheckoutContent() {
       }
 
       console.log("[v0] Gift card created successfully!")
-      const encodedCode = await encodeGiftCode(uniqueCode)
-      const claimLink = `${window.location.origin}/reward/${encodedCode}`
-      setShareableLink(claimLink)
+      const link = `${window.location.origin}/view?code=${uniqueCode}`
+      setShareableLink(link)
       setShowSuccessModal(true)
       setIsProcessing(false)
     } catch (error) {
@@ -217,25 +216,21 @@ function CheckoutContent() {
                       </span>
                     </div>
 
-                    {cardData.email && (
-                      <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                        <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C] flex-shrink-0" />
-                        <span className="text-gray-600">Email address:</span>
-                        <span className="font-medium text-[#185F72] ml-auto truncate max-w-[120px] sm:max-w-[180px]">
-                          {cardData.email}
-                        </span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                      <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C] flex-shrink-0" />
+                      <span className="text-gray-600">Email address:</span>
+                      <span className="font-medium text-[#185F72] ml-auto truncate max-w-[120px] sm:max-w-[180px]">
+                        {cardData.email}
+                      </span>
+                    </div>
 
-                    {cardData.message && (
-                      <div className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm">
-                        <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C] mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-600">Message:</span>
-                        <span className="font-medium text-[#185F72] ml-auto text-right max-w-[120px] sm:max-w-[180px] line-clamp-2">
-                          {cardData.message}
-                        </span>
-                      </div>
-                    )}
+                    <div className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm">
+                      <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C] mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-600">Message:</span>
+                      <span className="font-medium text-[#185F72] ml-auto text-right max-w-[120px] sm:max-w-[180px] line-clamp-2">
+                        {cardData.message}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="border-t border-gray-100 mt-4 sm:mt-6 pt-3 sm:pt-4">
@@ -332,9 +327,9 @@ function CheckoutContent() {
                   <StripeCheckout
                     amount={totalAmount}
                     recipientName={cardData.recipientName}
-                    recipientEmail={cardData.email || ""}
+                    recipientEmail={cardData.email}
                     senderName={cardData.senderName || "Anonymous"}
-                    message={cardData.message || ""}
+                    message={cardData.message}
                     uniqueCode={uniqueCode}
                     onComplete={handlePaymentComplete}
                   />
@@ -406,7 +401,7 @@ function CheckoutContent() {
 
             <div className="mb-3 sm:mb-4">
               <label className="block text-xs sm:text-sm font-semibold text-[#185F72] mb-1.5 sm:mb-2">
-                Shareable Claim Link
+                Shareable Link
               </label>
               <div className="flex items-center gap-2">
                 <div className="flex-1 bg-[#FFF7F5] rounded-lg p-2 sm:p-3 border border-[#F6664C]/20 min-w-0">
@@ -425,9 +420,6 @@ function CheckoutContent() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Share this secure link for the recipient to claim their reward
-              </p>
             </div>
 
             <div className="mb-4 sm:mb-6">

@@ -28,7 +28,7 @@ export async function createGiftCard({
   senderName: string
   senderEmail: string
   recipientName: string
-  recipientEmail: string // Can be empty string
+  recipientEmail: string
   amount: number
   message: string
   cardTemplate: string
@@ -44,7 +44,7 @@ export async function createGiftCard({
         sender_name: senderName,
         sender_email: senderEmail,
         recipient_name: recipientName,
-        recipient_email: recipientEmail || "",
+        recipient_email: recipientEmail,
         amount: amount,
         message: message,
         card_template: cardTemplate,
@@ -62,189 +62,52 @@ export async function createGiftCard({
       return { error: error.message }
     }
 
-    if (recipientEmail && recipientEmail.trim() !== "") {
-      try {
-        // Validate environment variables
-        if (!process.env.RESEND_API_KEY) {
-          console.error("[v0] RESEND_API_KEY not configured")
-          throw new Error("Email service not configured")
-        }
+    // Send email notification to recipient
+    try {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://lastminutecards.vercel.app"
+      const viewLink = `${appUrl}/view?code=${uniqueCode}`
 
-        const fromEmail = process.env.RESEND_FROM_EMAIL || "LastMinuteCards <hello@lastminutecards.com>"
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://lastminutecards.vercel.app"
-        const viewLink = `${appUrl}/view?code=${uniqueCode}`
-
-        console.log("[v0] Sending email to:", recipientEmail)
-        console.log("[v0] From:", fromEmail)
-        console.log("[v0] View link:", viewLink)
-
-        const emailResult = await resend.emails.send({
-          from: fromEmail,
-          replyTo: senderEmail || "support@lastminutecards.com",
-          to: recipientEmail,
-          subject: `${senderName} sent you a ${amount > 0 ? `£${amount} ` : ""}gift card`,
-          headers: {
-            "X-Entity-Ref-ID": uniqueCode,
-            "X-Priority": "1",
-          },
-          html: `
+      await resend.emails.send({
+        from: "LastMinuteCards <noreply@resend.dev>",
+        to: recipientEmail,
+        subject: `🎁 ${senderName} sent you a gift card!`,
+        html: `
           <!DOCTYPE html>
-          <html lang="en">
+          <html>
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name="x-apple-disable-message-reformatting">
-            <meta name="color-scheme" content="light">
-            <meta name="supported-color-schemes" content="light">
-            <title>You've received a gift card</title>
-            <!--[if mso]>
-            <style>
-              table { border-collapse: collapse; }
-              .button { padding: 16px 32px !important; }
-            </style>
-            <![endif]-->
           </head>
-          <body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f9fafb;">
-              <tr>
-                <td align="center" style="padding: 40px 20px;">
-                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
-                    <!-- Header -->
-                    <tr>
-                      <td style="padding: 40px 40px 32px 40px; text-align: center; border-bottom: 1px solid #e5e7eb;">
-                        <h1 style="color: #F6664C; font-size: 28px; margin: 0 0 8px 0; font-weight: 700; line-height: 1.2;">You've received a gift</h1>
-                        <p style="color: #6b7280; font-size: 16px; margin: 0; line-height: 1.5;">${senderName} has sent you something special</p>
-                      </td>
-                    </tr>
-                    
-                    <!-- Main Content -->
-                    <tr>
-                      <td style="padding: 32px 40px;">
-                        <p style="color: #374151; font-size: 16px; margin: 0 0 24px 0; line-height: 1.6;">Hello ${recipientName},</p>
-                        <p style="color: #374151; font-size: 16px; margin: 0 0 24px 0; line-height: 1.6;">You have received a digital gift card${amount > 0 ? ` worth £${amount}` : ""}. Click the button below to view your personalized card:</p>
-                        
-                        <!-- CTA Button -->
-                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 24px 0;">
-                          <tr>
-                            <td align="center">
-                              <!--[if mso]>
-                              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${viewLink}" style="height:52px;v-text-anchor:middle;width:200px;" arcsize="15%" stroke="f" fillcolor="#F6664C">
-                                <w:anchorlock/>
-                                <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">View Your Gift Card</center>
-                              </v:roundrect>
-                              <![endif]-->
-                              <!--[if !mso]><!-->
-                              <a href="${viewLink}" style="display: inline-block; background-color: #F6664C; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; line-height: 1.5; mso-hide: all;">View Your Gift Card</a>
-                              <!--<![endif]-->
-                            </td>
-                          </tr>
-                        </table>
-                        
-                        ${
-                          message
-                            ? `
-                        <!-- Personal Message -->
-                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #fef3f2; border-left: 4px solid #F6664C; border-radius: 4px; margin-top: 24px;">
-                          <tr>
-                            <td style="padding: 16px 20px;">
-                              <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0; font-weight: 600;">Personal message from ${senderName}:</p>
-                              <p style="color: #374151; font-size: 15px; margin: 0; line-height: 1.6; font-style: italic;">"${message}"</p>
-                            </td>
-                          </tr>
-                        </table>
-                        `
-                            : ""
-                        }
-                        
-                        <!-- Unique Code Box -->
-                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f3f4f6; border-radius: 8px; margin-top: 24px;">
-                          <tr>
-                            <td style="padding: 16px 20px;">
-                              <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">Your unique code:</p>
-                              <p style="color: #374151; font-size: 24px; font-weight: 700; font-family: 'Courier New', Courier, monospace; margin: 0; letter-spacing: 2px;">${uniqueCode}</p>
-                            </td>
-                          </tr>
-                        </table>
-                        
-                        <p style="color: #6b7280; font-size: 14px; margin: 24px 0 0 0; line-height: 1.5;">If the button doesn't work, copy and paste this link into your browser:<br><a href="${viewLink}" style="color: #F6664C; word-break: break-all; text-decoration: underline;">${viewLink}</a></p>
-                      </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                      <td style="padding: 24px 40px 40px 40px; border-top: 1px solid #e5e7eb;">
-                        <p style="color: #9ca3af; font-size: 12px; margin: 0 0 8px 0; text-align: center; line-height: 1.5;">This email was sent because ${senderName} (${senderEmail || "sender"}) sent you a gift card from LastMinuteCards.</p>
-                        <p style="color: #9ca3af; font-size: 12px; margin: 0; text-align: center;">© ${new Date().getFullYear()} LastMinuteCards. All rights reserved.</p>
-                      </td>
-                    </tr>
-                  </table>
-                  
-                  <!-- Spacer for email clients -->
-                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px;">
-                    <tr>
-                      <td style="padding: 20px; text-align: center;">
-                        <p style="color: #9ca3af; font-size: 11px; margin: 0;">
-                          <a href="${appUrl}" style="color: #9ca3af; text-decoration: underline;">Visit LastMinuteCards</a>
-                        </p>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
+          <body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+              <div style="background-color: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                <div style="text-align: center; margin-bottom: 32px;">
+                  <h1 style="color: #F6664C; font-size: 28px; margin: 0 0 8px 0;">You've received a gift!</h1>
+                  <p style="color: #6b7280; font-size: 16px; margin: 0;">${senderName} has sent you something special</p>
+                </div>
+                
+                <div style="text-align: center; margin: 32px 0;">
+                  <p style="color: #374151; font-size: 16px; margin: 0 0 24px 0;">Click the button below to view your gift card:</p>
+                  <a href="${viewLink}" style="display: inline-block; background-color: #F6664C; color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">View Your Gift Card</a>
+                </div>
+                
+                <div style="background-color: #f3f4f6; border-radius: 8px; padding: 16px; margin-top: 24px;">
+                  <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">Your unique code:</p>
+                  <p style="color: #374151; font-size: 24px; font-weight: 700; font-family: monospace; margin: 0; letter-spacing: 2px;">${uniqueCode}</p>
+                </div>
+                
+                <div style="border-top: 1px solid #e5e7eb; margin-top: 32px; padding-top: 24px; text-align: center;">
+                  <p style="color: #9ca3af; font-size: 12px; margin: 0;">© 2025 LastMinuteCards UK. All rights reserved.</p>
+                </div>
+              </div>
+            </div>
           </body>
           </html>
         `,
-          text: `
-Hello ${recipientName},
-
-${senderName} has sent you a gift card${amount > 0 ? ` worth £${amount}` : ""}!
-
-${message ? `Personal message: "${message}"` : ""}
-
-View your gift card here: ${viewLink}
-
-Your unique code: ${uniqueCode}
-
-If you have any questions, please reply to this email or contact us at support@lastminutecards.com
-
-© ${new Date().getFullYear()} LastMinuteCards. All rights reserved.
-        `.trim(),
-        })
-
-        console.log("[v0] Email sent successfully!")
-        console.log("[v0] Email ID:", emailResult.data?.id)
-
-        if (emailResult.data?.id) {
-          await supabase
-            .from("gift_cards")
-            .update({
-              email_sent: true,
-              email_id: emailResult.data.id,
-            })
-            .eq("id", data.id)
-        }
-      } catch (emailError: any) {
-        console.error("[v0] Email send error:", emailError)
-        console.error("[v0] Error details:", JSON.stringify(emailError, null, 2))
-
-        await supabase
-          .from("gift_cards")
-          .update({
-            email_sent: false,
-            email_error: emailError?.message || "Failed to send email",
-          })
-          .eq("id", data.id)
-      }
-    } else {
-      console.log("[v0] No recipient email provided, skipping email send")
-      await supabase
-        .from("gift_cards")
-        .update({
-          email_sent: false,
-          email_error: "No recipient email provided",
-        })
-        .eq("id", data.id)
+      })
+    } catch (emailError) {
+      console.error("[v0] Email send error:", emailError)
+      // Don't fail the gift card creation if email fails
     }
 
     return { success: true, data }
@@ -256,28 +119,17 @@ If you have any questions, please reply to this email or contact us at support@l
 
 export async function getGiftCardByCode(uniqueCode: string) {
   try {
-    console.log("[v0] Fetching gift card with code:", uniqueCode)
-
     const { data, error } = await supabase.from("gift_cards").select("*").eq("unique_code", uniqueCode).single()
 
     if (error) {
-      console.error("[v0] Supabase error fetching gift card:", error)
-      // Return a structured error response
-      return { data: null, error: error.message || "Gift card not found" }
+      console.error("[v0] Error fetching gift card:", error)
+      return { error: error.message }
     }
 
-    if (!data) {
-      console.error("[v0] No data returned for gift card")
-      return { data: null, error: "Gift card not found" }
-    }
-
-    console.log("[v0] Gift card fetched successfully")
-    return { data, error: null }
+    return { data }
   } catch (error: any) {
-    // Handle unexpected errors (like rate limiting, network issues, etc.)
-    console.error("[v0] Unexpected error in getGiftCardByCode:", error)
-    const errorMessage = typeof error === "string" ? error : error?.message || "Failed to fetch gift card"
-    return { data: null, error: errorMessage }
+    console.error("[v0] Error in getGiftCardByCode:", error)
+    return { error: error?.message || "Failed to fetch gift card" }
   }
 }
 
@@ -307,26 +159,5 @@ export async function updateGiftCardStatus(uniqueCode: string, status: "Sent" | 
   } catch (error: any) {
     console.error("[v0] Error in updateGiftCardStatus:", error)
     return { error: error?.message || "Failed to update gift card status" }
-  }
-}
-
-export async function encodeGiftCode(uniqueCode: string): Promise<string> {
-  // Use base64 encoding to hide the code in URL
-  const base64 = btoa(uniqueCode)
-  // Make it URL safe
-  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
-}
-
-export async function decodeGiftCode(encodedCode: string): Promise<string> {
-  try {
-    // Reverse URL safe encoding
-    const base64 = encodedCode.replace(/-/g, "+").replace(/_/g, "/")
-    // Add padding if needed
-    const padded = base64 + "==".substring(0, (4 - (base64.length % 4)) % 4)
-    const decoded = atob(padded)
-    return decoded
-  } catch (error) {
-    console.error("[v0] Error decoding gift code:", error)
-    throw new Error("Invalid gift code")
   }
 }

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, Menu, Facebook, Instagram, Gift } from "lucide-react"
+import { Search, Menu, Facebook, Instagram } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
@@ -11,7 +11,7 @@ const navCategories = [
   { name: "Birthdays", href: "/customize?category=Birthdays" },
   { name: "Well Wishes", href: "/customize?category=Well Wishes" },
   { name: "Seasonal", href: "/customize?category=Seasonal" },
-  { name: "Love and Relationships", href: "/customize?category=Love and Relationships" },
+  { name: "Milestone Moments", href: "/customize?category=Milestone Moments" },
 ]
 
 export function Header() {
@@ -68,14 +68,6 @@ export function Header() {
           </nav>
 
           <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2">
-            <Link href="/claim-reward">
-              <Button className="hidden sm:flex items-center gap-2 bg-[#185F72] hover:bg-[#144857] text-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors cursor-pointer">
-                <Gift className="h-4 w-4" />
-                <span className="hidden md:inline">Claim Your Gift Card</span>
-                <span className="md:hidden">Claim Gift</span>
-              </Button>
-            </Link>
-
             <Button
               variant="ghost"
               size="icon"
@@ -102,15 +94,6 @@ export function Header() {
                   {/* Mobile header */}
                   <div className="flex items-center justify-between p-4 border-b border-gray-200">
                     <span className="text-lg font-semibold text-gray-900">Menu</span>
-                  </div>
-
-                  <div className="p-4 border-b border-gray-200">
-                    <Link href="/claim-reward" onClick={() => setMobileMenuOpen(false)}>
-                      <Button className="w-full flex items-center justify-center gap-2 bg-[#185F72] hover:bg-[#144857] text-white py-3 font-medium transition-colors cursor-pointer">
-                        <Gift className="h-5 w-5" />
-                        Claim Your Gift Card
-                      </Button>
-                    </Link>
                   </div>
 
                   {/* Categories */}

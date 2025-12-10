@@ -37,14 +37,14 @@ function CustomizeContent() {
   const [senderName, setSenderName] = useState("")
   const [isAnonymous, setIsAnonymous] = useState(false)
 
-  const categories = ["All", "Birthdays", "Well Wishes", "Seasonal", "Love and Relationships"]
+  const categories = ["All", "Birthdays", "Well Wishes", "Seasonal", "Milestone Moments"]
   const cashAmounts = [5, 10, 20, 50, 100, 200]
 
   const categoryMap: Record<string, string> = {
     Birthdays: "birthdays",
     "Well Wishes": "well-wishes",
     Seasonal: "seasonal",
-    "Love and Relationships": "love-relationships",
+    "Milestone Moments": "milestone-moments",
   }
 
   const filteredCards =
@@ -93,7 +93,8 @@ function CustomizeContent() {
     router.push("/checkout")
   }
 
-  const isFormValid = recipientName && (includeGift ? getActualAmount() > 0 : true) && (isAnonymous || senderName)
+  const isFormValid =
+    recipientName && recipientEmail && message && (isAnonymous || senderName) && (!includeGift || getActualAmount() > 0)
 
   const currentCard = filteredCards[selectedCard] || cardTemplates[0]
   const displayAmount = getActualAmount()
@@ -131,35 +132,22 @@ function CustomizeContent() {
               {/* Flip Card Container */}
               <div
                 className="relative mx-auto cursor-pointer"
-                style={{
-                  perspective: "1000px",
-                  maxWidth: "320px",
-                  WebkitPerspective: "1000px",
-                  transformStyle: "preserve-3d",
-                  WebkitTransformStyle: "preserve-3d",
-                }}
+                style={{ perspective: "1000px", maxWidth: "320px" }}
                 onClick={() => setIsFlipped(!isFlipped)}
               >
                 <div
-                  className="relative aspect-[3/4] w-full transition-transform duration-700"
+                  className="relative w-full transition-transform duration-700"
                   style={{
                     transformStyle: "preserve-3d",
-                    WebkitTransformStyle: "preserve-3d",
                     transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-                    WebkitTransform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                   }}
                 >
                   {/* Front of Card */}
                   <div
-                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
-                    style={{
-                      backfaceVisibility: "hidden",
-                      WebkitBackfaceVisibility: "hidden",
-                      transform: "rotateY(0deg)",
-                      WebkitTransform: "rotateY(0deg)",
-                    }}
+                    className="w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
+                    style={{ backfaceVisibility: "hidden" }}
                   >
-                    <div className="w-full h-full relative">
+                    <div className="aspect-[3/4] relative">
                       <Image
                         src={currentCard.image || "/placeholder.svg"}
                         alt={currentCard.name}
@@ -178,12 +166,10 @@ function CustomizeContent() {
 
                   {/* Back of Card */}
                   <div
-                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#185F72] to-[#0d3d4a]"
+                    className="absolute inset-0 w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#185F72] to-[#0d3d4a]"
                     style={{
                       backfaceVisibility: "hidden",
-                      WebkitBackfaceVisibility: "hidden",
                       transform: "rotateY(180deg)",
-                      WebkitTransform: "rotateY(180deg)",
                     }}
                   >
                     <div className="aspect-[3/4] flex flex-col justify-between p-4 sm:p-6 text-white">
@@ -389,31 +375,30 @@ function CustomizeContent() {
                     className="mt-1"
                   />
                 </div>
-                <div className="space-y-2">
+                <div>
                   <Label htmlFor="recipientEmail" className="text-sm text-gray-700">
-                    Recipient Email (Optional)
+                    Recipient Email
                   </Label>
                   <Input
                     id="recipientEmail"
                     type="email"
-                    placeholder="Enter recipient's email (optional)"
+                    placeholder="Enter recipient's email"
                     value={recipientEmail}
                     onChange={(e) => setRecipientEmail(e.target.value)}
-                    className="h-11 text-sm bg-white/80"
+                    className="mt-1"
                   />
-                  <p className="text-xs text-gray-500">If provided, we'll send the card directly to their inbox</p>
                 </div>
-                <div className="space-y-2">
+                <div>
                   <Label htmlFor="message" className="text-sm text-gray-700">
-                    Personal Message (Optional)
+                    Personal Message
                   </Label>
                   <Textarea
                     id="message"
-                    placeholder="Write your heartfelt message here (optional)..."
+                    placeholder="Write a heartfelt message..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    rows={4}
-                    className="resize-none text-sm bg-white/80"
+                    rows={3}
+                    className="mt-1 resize-none"
                   />
                 </div>
               </div>

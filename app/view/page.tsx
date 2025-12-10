@@ -50,44 +50,39 @@ function ViewCardContent() {
 
   const loadGiftCard = useCallback(async (code: string) => {
     try {
-      console.log("[v0] Loading gift card with code:", code)
       const result = await getGiftCardByCode(code)
 
-      if (result.error || !result.data) {
-        console.error("[v0] Error from getGiftCardByCode:", result.error)
+      if (result.data) {
+        if (result.data.status === "Claimed") {
+          setViewState("claimed")
+          return
+        }
+
+        if (result.data.status === "Sent") {
+          await updateGiftCardStatus(code, "Opened")
+        }
+
+        const constructedCardData = {
+          recipientName: result.data.recipient_name,
+          recipientEmail: result.data.recipient_email,
+          amount: result.data.amount,
+          message: result.data.message,
+          cardImage: result.data.card_image_url,
+          cardCategory: result.data.card_template,
+          backCardColor: "#FFF5F0",
+          backTextColor: "#185F72",
+        }
+
+        setCardData(constructedCardData)
+        setSenderName(result.data.sender_name || "Anonymous")
+        setViewState("congrats")
+        setShowConfetti(true)
+      } else {
         setError(result.error || "Gift card not found")
         setViewState("error")
-        return
       }
-
-      if (result.data.status === "Claimed") {
-        setViewState("claimed")
-        return
-      }
-
-      if (result.data.status === "Sent") {
-        await updateGiftCardStatus(code, "Opened")
-      }
-
-      const constructedCardData = {
-        recipientName: result.data.recipient_name,
-        recipientEmail: result.data.recipient_email,
-        amount: result.data.amount,
-        message: result.data.message,
-        cardImage: result.data.card_image_url,
-        cardCategory: result.data.card_template,
-        backCardColor: "#FFF5F0",
-        backTextColor: "#185F72",
-      }
-
-      setCardData(constructedCardData)
-      setSenderName(result.data.sender_name || "Anonymous")
-      setViewState("congrats")
-      setShowConfetti(true)
-    } catch (err: any) {
-      console.error("[v0] Error fetching gift card:", err)
-      const errorMessage = typeof err === "string" ? err : err?.message || "Failed to load gift card"
-      setError(errorMessage)
+    } catch (err) {
+      setError("Failed to load gift card")
       setViewState("error")
     }
   }, [])

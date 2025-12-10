@@ -88,10 +88,10 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/customize?category=love-relationships"
+                  href="/customize?category=milestone-moments"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
-                  Love and Relationships
+                  Milestone Moments
                 </Link>
               </li>
             </ul>
@@ -100,14 +100,14 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Resources</h3>
             <ul className="space-y-2 sm:space-y-2.5">
-              {/* <li>
+              <li>
                 <Link
                   href="/contact"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   Contact Us
                 </Link>
-              </li> */}
+              </li>
               <li>
                 <Link
                   href="/#faq"
@@ -118,9 +118,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pdf/privacy-policy.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/privacy"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   Privacy Policy
@@ -128,9 +126,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pdf/terms-of-service.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/terms"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   Terms of Service
@@ -138,9 +134,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pdf/cookie-policy.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/cookies"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   Cookie Policy
@@ -148,9 +142,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pdf/gdpr-compliance.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/gdpr"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
                   GDPR Compliance
