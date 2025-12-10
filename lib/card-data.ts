@@ -45,50 +45,44 @@ export const cardTemplates: CardTemplate[] = [
     subcategory: "funny-cards",
   },
 
-  // Seasonal - Christmas
+  // Seasonal - Easter
   {
     id: 37,
-    image: "/merry-bright-christmas-wreath-red-green-holly.jpg",
-    name: "Christmas Wreath",
+    image: "/seasonal-cards/easter-bunny-tulips.jpg",
+    name: "Happy Easter",
     category: "seasonal",
-    subcategory: "christmas",
+    subcategory: "easter",
   },
+  // Seasonal - Mother's Day
   {
     id: 38,
-    image: "/holiday-wreath-festive-christmas-card.jpg",
-    name: "Holiday Wreath",
+    image: "/seasonal-cards/mothers-day-breakfast.jpg",
+    name: "Mother's Day",
     category: "seasonal",
-    subcategory: "christmas",
+    subcategory: "mothers-day",
   },
+  // Seasonal - Father's Day
   {
     id: 39,
-    image: "/christmas-red-wreath-holly-berries-card.jpg",
-    name: "Holly Berries",
+    image: "/seasonal-cards/fathers-day-breakfast.jpg",
+    name: "Father's Day",
     category: "seasonal",
-    subcategory: "christmas",
+    subcategory: "fathers-day",
   },
+  // Seasonal - Christmas
   {
     id: 40,
-    image: "/green-christmas-wreath-winter-holiday-card.jpg",
-    name: "Green Wreath",
+    image: "/seasonal-cards/christmas-tree-gifts.jpg",
+    name: "Christmas Tree",
     category: "seasonal",
     subcategory: "christmas",
   },
-
-  // Seasonal - Halloween
   {
-    id: 43,
-    image: "/halloween-greeting-card-orange-plaid-black-cat.jpg",
-    name: "Halloween Cat",
+    id: 41,
+    image: "/seasonal-cards/christmas-santa-hat-lights.jpg",
+    name: "Santa Hat",
     category: "seasonal",
-    subcategory: "halloween",
-  },
-  {
-    id: 44,
-    image: "/halloween-spooky-sweet-pumpkin-card.jpg",
-    name: "Spooky Pumpkin",
-    category: "seasonal",
-    subcategory: "halloween",
+    subcategory: "christmas",
   },
 
   // Love and Relationships - Anniversary
@@ -158,6 +152,8 @@ export function getSubcategoryTitle(subcategory: string): string {
     halloween: "Halloween",
     easter: "Easter",
     valentines: "Valentines",
+    "mothers-day": "Mother's Day",
+    "fathers-day": "Father's Day",
     anniversary: "Anniversary",
     "love-romance": "Love & Romance",
     wedding: "Wedding",

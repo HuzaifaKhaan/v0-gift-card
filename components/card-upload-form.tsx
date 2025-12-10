@@ -19,6 +19,11 @@ const CATEGORIES = [
     label: "Milestone Moments",
     subcategories: ["new-job", "new-baby", "new-home", "wedding", "retirement", "new-car", "just-passed"],
   },
+  {
+    value: "love-relationships",
+    label: "Love and Relationships",
+    subcategories: ["anniversary", "valentines", "love-romance", "wedding"],
+  },
 ]
 
 export function CardUploadForm() {

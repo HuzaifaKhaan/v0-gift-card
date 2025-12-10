@@ -37,14 +37,14 @@ function CustomizeContent() {
   const [senderName, setSenderName] = useState("")
   const [isAnonymous, setIsAnonymous] = useState(false)
 
-  const categories = ["All", "Birthdays", "Well Wishes", "Seasonal", "Milestone Moments"]
+  const categories = ["All", "Birthdays", "Well Wishes", "Seasonal", "Love and Relationships"]
   const cashAmounts = [5, 10, 20, 50, 100, 200]
 
   const categoryMap: Record<string, string> = {
     Birthdays: "birthdays",
     "Well Wishes": "well-wishes",
     Seasonal: "seasonal",
-    "Milestone Moments": "milestone-moments",
+    "Love and Relationships": "love-relationships",
   }
 
   const filteredCards =

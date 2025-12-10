@@ -88,10 +88,10 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/customize?category=milestone-moments"
+                  href="/customize?category=love-relationships"
                   className="text-white/90 hover:text-white transition-colors text-xs sm:text-sm cursor-pointer"
                 >
-                  Milestone Moments
+                  Love and Relationships
                 </Link>
               </li>
             </ul>

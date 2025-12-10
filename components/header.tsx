@@ -11,7 +11,7 @@ const navCategories = [
   { name: "Birthdays", href: "/customize?category=Birthdays" },
   { name: "Well Wishes", href: "/customize?category=Well Wishes" },
   { name: "Seasonal", href: "/customize?category=Seasonal" },
-  { name: "Milestone Moments", href: "/customize?category=Milestone Moments" },
+  { name: "Love and Relationships", href: "/customize?category=Love and Relationships" },
   { name: "Claim Your Reward", href: "/claim-reward" },
 ]
 
@@ -57,7 +57,7 @@ export function Header() {
           </Link>
 
           <nav className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-2">
-            {navCategories.slice(0, -1).map((category) => (
+            {navCategories.map((category) => (
               <Link
                 key={category.name}
                 href={category.href}
@@ -99,7 +99,7 @@ export function Header() {
 
                   {/* Categories */}
                   <nav className="flex-1 py-2">
-                    {navCategories.slice(0, -1).map((category) => (
+                    {navCategories.map((category) => (
                       <Link
                         key={category.name}
                         href={category.href}
