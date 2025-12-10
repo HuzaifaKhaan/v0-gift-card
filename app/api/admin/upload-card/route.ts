@@ -8,10 +8,9 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get("file") as File
     const category = formData.get("category") as string
-    const subcategory = formData.get("subcategory") as string
     const name = formData.get("name") as string
 
-    if (!file || !category || !subcategory || !name) {
+    if (!file || !category || !name) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -19,8 +18,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Create filename from card name
-    const filename = `${category}-${subcategory}-${name.toLowerCase().replace(/\s+/g, "-")}.${file.name.split(".").pop()}`
+    const filename = `${category}-${name.toLowerCase().replace(/\s+/g, "-")}.${file.name.split(".").pop()}`
 
     // Ensure public directory exists
     const publicDir = join(process.cwd(), "public")

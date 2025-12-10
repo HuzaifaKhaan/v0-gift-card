@@ -11,32 +11,20 @@ import { Upload, CheckCircle, AlertCircle, X } from "lucide-react"
 import Image from "next/image"
 
 const CATEGORIES = [
-  { value: "birthdays", label: "Birthdays", subcategories: ["number-cards", "photo-cards", "funny-cards"] },
-  { value: "well-wishes", label: "Well Wishes", subcategories: ["congratulations", "good-luck", "treat-yourself"] },
-  { value: "seasonal", label: "Seasonal", subcategories: ["christmas", "halloween", "easter", "valentines"] },
-  {
-    value: "milestone-moments",
-    label: "Milestone Moments",
-    subcategories: ["new-job", "new-baby", "new-home", "wedding", "retirement", "new-car", "just-passed"],
-  },
-  {
-    value: "love-relationships",
-    label: "Love and Relationships",
-    subcategories: ["anniversary", "valentines", "love-romance", "wedding"],
-  },
+  { value: "birthdays", label: "Birthdays" },
+  { value: "well-wishes", label: "Well Wishes" },
+  { value: "seasonal", label: "Seasonal" },
+  { value: "love-relationships", label: "Love and Relationships" },
 ]
 
 export function CardUploadForm() {
   const [selectedCategory, setSelectedCategory] = useState("")
-  const [selectedSubcategory, setSelectedSubcategory] = useState("")
   const [cardName, setCardName] = useState("")
   const [cardFile, setCardFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [errorMessage, setErrorMessage] = useState("")
-
-  const currentCategory = CATEGORIES.find((cat) => cat.value === selectedCategory)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -56,7 +44,7 @@ export function CardUploadForm() {
   }
 
   const handleUpload = async () => {
-    if (!cardFile || !selectedCategory || !selectedSubcategory || !cardName.trim()) {
+    if (!cardFile || !selectedCategory || !cardName.trim()) {
       setErrorMessage("Please fill in all fields and select a card image")
       return
     }
@@ -68,7 +56,6 @@ export function CardUploadForm() {
       const formData = new FormData()
       formData.append("file", cardFile)
       formData.append("category", selectedCategory)
-      formData.append("subcategory", selectedSubcategory)
       formData.append("name", cardName.trim())
 
       const response = await fetch("/api/admin/upload-card", {
@@ -86,7 +73,6 @@ export function CardUploadForm() {
       setPreviewUrl(null)
       setCardName("")
       setSelectedCategory("")
-      setSelectedSubcategory("")
       setErrorMessage("")
 
       // Auto-reset success message after 3 seconds
@@ -129,13 +115,7 @@ export function CardUploadForm() {
             <Label htmlFor="category" className="text-sm font-medium text-[#185F72] mb-2 block">
               Category
             </Label>
-            <Select
-              value={selectedCategory}
-              onValueChange={(value) => {
-                setSelectedCategory(value)
-                setSelectedSubcategory("") // Reset subcategory when category changes
-              }}
-            >
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="w-full border-gray-300 focus:border-[#F6664C] focus:ring-[#F6664C]">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -148,29 +128,6 @@ export function CardUploadForm() {
               </SelectContent>
             </Select>
           </div>
-
-          {currentCategory && (
-            <div>
-              <Label htmlFor="subcategory" className="text-sm font-medium text-[#185F72] mb-2 block">
-                Subcategory
-              </Label>
-              <Select value={selectedSubcategory} onValueChange={setSelectedSubcategory}>
-                <SelectTrigger className="w-full border-gray-300 focus:border-[#F6664C] focus:ring-[#F6664C]">
-                  <SelectValue placeholder="Select subcategory" />
-                </SelectTrigger>
-                <SelectContent className="z-50">
-                  {currentCategory.subcategories.map((subcat) => (
-                    <SelectItem key={subcat} value={subcat}>
-                      {subcat
-                        .split("-")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           <div>
             <Label className="text-sm font-medium text-[#185F72] mb-2 block">Card Image</Label>
@@ -203,7 +160,7 @@ export function CardUploadForm() {
 
           <Button
             onClick={handleUpload}
-            disabled={isUploading || !cardFile || !selectedCategory || !selectedSubcategory || !cardName.trim()}
+            disabled={isUploading || !cardFile || !selectedCategory || !cardName.trim()}
             className="w-full bg-gradient-to-r from-[#F6664C] to-[#FF8A75] hover:from-[#e55540] hover:to-[#f77a63] text-white font-semibold py-6 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? (
