@@ -29,6 +29,7 @@ import {
   Upload,
 } from "lucide-react"
 import CardUploadForm from "@/components/card-upload-form" // Import the CardUploadForm component
+import CardManagement from "@/components/card-management" // Import CardManagement component
 
 interface GiftCard {
   id: string
@@ -72,7 +73,7 @@ export default function AdminDashboard() {
   const [giftCards, setGiftCards] = useState<GiftCard[]>([])
   const [filteredCards, setFilteredCards] = useState<GiftCard[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState<"overview" | "activity" | "upload-cards">("activity") // Updated state type
+  const [activeTab, setActiveTab] = useState<"overview" | "activity" | "upload-cards" | "manage-cards">("activity") // Updated state type
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Dropdowns
@@ -410,7 +411,16 @@ export default function AdminDashboard() {
             <Upload className="w-5 h-5" />
             Upload Cards
           </button>
-          {/* </CHANGE> */}
+
+          <button
+            onClick={() => setActiveTab("manage-cards")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+              activeTab === "manage-cards" ? "bg-[#4ECDC4]/10 text-[#4ECDC4]" : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <ImageIcon className="w-5 h-5" />
+            Manage Cards
+          </button>
 
           <button
             onClick={() => setActiveTab("overview")}
@@ -759,16 +769,9 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {activeTab === "upload-cards" && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-[#FF6B6B]">Upload Cards by Category</h2>
+          {activeTab === "upload-cards" && <CardUploadForm />}
 
-              <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                <CardUploadForm />
-              </div>
-            </div>
-          )}
-          {/* </CHANGE> */}
+          {activeTab === "manage-cards" && <CardManagement />}
         </div>
       </main>
 
