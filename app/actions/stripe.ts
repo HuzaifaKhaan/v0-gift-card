@@ -8,15 +8,11 @@ export async function createCheckoutSession(amount: number, description: string)
     // Amount is in pounds, convert to pence for Stripe
     const amountInPence = Math.round(amount * 100)
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-
     console.log("[v0] Creating checkout session with amount:", amountInPence, "pence")
-    console.log("[v0] Base URL:", baseUrl)
 
     const session = await stripe.checkout.sessions.create({
       ui_mode: "embedded",
       redirect_on_completion: "never",
-      return_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       line_items: [
         {
           price_data: {
