@@ -105,9 +105,9 @@ export function CardUploadForm() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left column - Form */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <Label htmlFor="card-name" className="text-sm font-medium text-gray-700 mb-2 block">
+            <Label htmlFor="card-name" className="text-sm font-medium text-[#185F72] mb-2 block">
               Card Name
             </Label>
             <Input
@@ -116,19 +116,25 @@ export function CardUploadForm() {
               placeholder="e.g., Happy Birthday Balloons"
               value={cardName}
               onChange={(e) => setCardName(e.target.value)}
-              className="border-gray-300 focus:border-[#4ECDC4] focus:ring-[#4ECDC4]"
+              className="w-full border-gray-300 focus:border-[#F6664C] focus:ring-[#F6664C]"
             />
           </div>
 
           <div>
-            <Label htmlFor="category" className="text-sm font-medium text-gray-700 mb-2 block">
+            <Label htmlFor="category" className="text-sm font-medium text-[#185F72] mb-2 block">
               Category
             </Label>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="border-gray-300 focus:border-[#4ECDC4] focus:ring-[#4ECDC4]">
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value)
+                setSelectedSubcategory("") // Reset subcategory when category changes
+              }}
+            >
+              <SelectTrigger className="w-full border-gray-300 focus:border-[#F6664C] focus:ring-[#F6664C]">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50">
                 {CATEGORIES.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
                     {cat.label}
@@ -140,14 +146,14 @@ export function CardUploadForm() {
 
           {currentCategory && (
             <div>
-              <Label htmlFor="subcategory" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="subcategory" className="text-sm font-medium text-[#185F72] mb-2 block">
                 Subcategory
               </Label>
               <Select value={selectedSubcategory} onValueChange={setSelectedSubcategory}>
-                <SelectTrigger className="border-gray-300 focus:border-[#4ECDC4] focus:ring-[#4ECDC4]">
+                <SelectTrigger className="w-full border-gray-300 focus:border-[#F6664C] focus:ring-[#F6664C]">
                   <SelectValue placeholder="Select subcategory" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50">
                   {currentCategory.subcategories.map((subcat) => (
                     <SelectItem key={subcat} value={subcat}>
                       {subcat
@@ -162,18 +168,18 @@ export function CardUploadForm() {
           )}
 
           <div>
-            <Label className="text-sm font-medium text-gray-700 mb-2 block">Card Image</Label>
+            <Label className="text-sm font-medium text-[#185F72] mb-2 block">Card Image</Label>
             <div className="flex items-center gap-3">
               <label
                 htmlFor="card-file"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#4ECDC4] hover:bg-[#4ECDC4]/5 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#F6664C] hover:bg-[#FFF7F5] transition-colors"
               >
                 <Upload className="w-5 h-5 text-gray-500" />
-                <span className="text-sm text-gray-600">{cardFile ? cardFile.name : "Choose image (max 5MB)"}</span>
+                <span className="text-sm text-gray-600 truncate">{cardFile ? cardFile.name : "Choose image"}</span>
               </label>
               <input id="card-file" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Recommended: 300x400px (3:4 ratio)</p>
+            <p className="text-xs text-gray-500 mt-2">Recommended: 300x400px (3:4 ratio) • Max 5MB</p>
           </div>
 
           {errorMessage && (
@@ -193,7 +199,7 @@ export function CardUploadForm() {
           <Button
             onClick={handleUpload}
             disabled={isUploading || !cardFile || !selectedCategory || !selectedSubcategory || !cardName.trim()}
-            className="w-full bg-[#4ECDC4] hover:bg-[#3db8af] text-white font-semibold py-6"
+            className="w-full bg-gradient-to-r from-[#F6664C] to-[#FF8A75] hover:from-[#e55540] hover:to-[#f77a63] text-white font-semibold py-6 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? (
               <>
@@ -211,14 +217,15 @@ export function CardUploadForm() {
 
         {/* Right column - Preview */}
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Preview</Label>
-          <div className="aspect-[3/4] bg-gray-100 rounded-lg border-2 border-gray-200 overflow-hidden relative">
+          <Label className="text-sm font-medium text-[#185F72] mb-2 block">Preview</Label>
+          <div className="aspect-[3/4] bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-gray-200 overflow-hidden relative">
             {previewUrl ? (
               <>
                 <Image src={previewUrl || "/placeholder.svg"} alt="Card preview" fill className="object-cover" />
                 <button
                   onClick={clearPreview}
-                  className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                  className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors z-10"
+                  aria-label="Clear preview"
                 >
                   <X className="w-4 h-4 text-gray-600" />
                 </button>
@@ -226,8 +233,9 @@ export function CardUploadForm() {
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400">
                 <div className="text-center">
-                  <Upload className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-sm">No image selected</p>
+                  <Upload className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm font-medium">No image selected</p>
+                  <p className="text-xs mt-1">Upload to see preview</p>
                 </div>
               </div>
             )}
