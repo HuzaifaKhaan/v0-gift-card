@@ -3,6 +3,15 @@ import { NextResponse } from "next/server"
 import type Stripe from "stripe"
 import { stripe } from "@/lib/stripe"
 
+const processedEvents = new Set<string>()
+
+setInterval(
+  () => {
+    processedEvents.clear()
+  },
+  24 * 60 * 60 * 1000,
+)
+
 export async function POST(req: Request) {
   const body = await req.text()
   const headersList = await headers()
@@ -17,34 +26,34 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err: any) {
-    console.error("[v0] Webhook signature verification failed:", err.message)
+    console.error("Webhook signature verification failed:", err.message)
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
   }
+
+  if (processedEvents.has(event.id)) {
+    console.warn("Duplicate event detected:", event.id)
+    return NextResponse.json({ received: true, duplicate: true })
+  }
+
+  processedEvents.add(event.id)
 
   // Handle the event
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session
-
-      console.log("[v0] Payment successful for session:", session.id)
-
-      // You can add additional processing here if needed
-      // For example, updating the gift card status or sending confirmation emails
-
+      // Process payment
       break
     }
     case "checkout.session.async_payment_succeeded": {
       const session = event.data.object as Stripe.Checkout.Session
-      console.log("[v0] Async payment succeeded for session:", session.id)
       break
     }
     case "checkout.session.async_payment_failed": {
       const session = event.data.object as Stripe.Checkout.Session
-      console.log("[v0] Async payment failed for session:", session.id)
       break
     }
     default:
-      console.log(`[v0] Unhandled event type: ${event.type}`)
+      console.log(`Unhandled event type: ${event.type}`)
   }
 
   return NextResponse.json({ received: true })

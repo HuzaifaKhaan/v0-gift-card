@@ -1,14 +1,16 @@
 "use server"
 
 import { stripe } from "@/lib/stripe"
+import { validateAmount, validateUKSortCode, validateUKAccountNumber, sanitizeName } from "@/lib/validation"
 
-// Create a checkout session for gift card purchase
 export async function createCheckoutSession(amount: number, description: string) {
   try {
-    // Amount is in pounds, convert to pence for Stripe
-    const amountInPence = Math.round(amount * 100)
+    const amountValidation = validateAmount(amount)
+    if (!amountValidation.valid) {
+      throw new Error(amountValidation.error)
+    }
 
-    console.log("[v0] Creating checkout session with amount:", amountInPence, "pence")
+    const amountInPence = Math.round(amount * 100)
 
     const session = await stripe.checkout.sessions.create({
       ui_mode: "embedded",
@@ -19,7 +21,7 @@ export async function createCheckoutSession(amount: number, description: string)
             currency: "gbp",
             product_data: {
               name: "LastMinuteCards Gift Card",
-              description: description,
+              description: description.substring(0, 500), // Limit description length
             },
             unit_amount: amountInPence,
           },
@@ -29,10 +31,9 @@ export async function createCheckoutSession(amount: number, description: string)
       mode: "payment",
     })
 
-    console.log("[v0] Checkout session created:", session.id)
     return session.client_secret
   } catch (error: any) {
-    console.error("[v0] Error creating checkout session:", error?.message)
+    console.error("Error creating checkout session:", error?.message)
     throw new Error(error?.message || "Failed to create checkout session")
   }
 }
@@ -53,35 +54,49 @@ export async function processGiftCardPayout({
   recipientEmail: string
 }) {
   try {
-    console.log("[v0] Processing payout for gift card:", uniqueCode)
-    console.log("[v0] Amount:", amount, "GBP")
-    console.log("[v0] Account holder:", accountHolderName)
+    const amountValidation = validateAmount(amount)
+    if (!amountValidation.valid) {
+      return {
+        success: false,
+        error: amountValidation.error,
+      }
+    }
 
-    // Create a bank account token for UK accounts with proper sort code format
+    if (!validateUKSortCode(sortCode)) {
+      return {
+        success: false,
+        error: "Invalid sort code. Must be 6 digits (e.g., 12-34-56)",
+      }
+    }
+
+    if (!validateUKAccountNumber(accountNumber)) {
+      return {
+        success: false,
+        error: "Invalid account number. Must be 8 digits",
+      }
+    }
+
+    const sanitizedName = sanitizeName(accountHolderName)
+    if (!sanitizedName) {
+      return {
+        success: false,
+        error: "Account holder name is required",
+      }
+    }
+
+    const cleanedSortCode = sortCode.replace(/[\s-]/g, "")
+    const cleanedAccountNumber = accountNumber.replace(/\s/g, "")
+
     const bankAccountToken = await stripe.tokens.create({
       bank_account: {
         country: "GB",
         currency: "gbp",
-        account_holder_name: accountHolderName,
+        account_holder_name: sanitizedName,
         account_holder_type: "individual",
-        routing_number: sortCode, // UK sort code (6 digits)
-        account_number: accountNumber,
+        routing_number: cleanedSortCode,
+        account_number: cleanedAccountNumber,
       },
     })
-
-    console.log("[v0] Bank account token created:", bankAccountToken.id)
-
-    // NOTE: This creates a token but doesn't actually transfer funds
-    // For real payouts, you need to:
-    // 1. Set up Stripe Connect in your Stripe Dashboard
-    // 2. Use stripe.transfers.create() or stripe.payouts.create()
-    //
-    // Example with Stripe Connect:
-    // const transfer = await stripe.transfers.create({
-    //   amount: Math.round(amount * 100), // Convert to pence
-    //   currency: "gbp",
-    //   destination: connectedAccountId,
-    // })
 
     return {
       success: true,
@@ -89,7 +104,7 @@ export async function processGiftCardPayout({
       message: "Bank account verified. Payout will be processed within 1-2 business days.",
     }
   } catch (error: any) {
-    console.error("[v0] Stripe payout error:", error)
+    console.error("Stripe payout error:", error)
     return {
       success: false,
       error: error?.message || "Failed to process payout. Please check your bank details.",

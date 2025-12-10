@@ -1,11 +1,10 @@
 "use server"
 
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from "@/lib/supabase/server"
 import { Resend } from "resend"
+import { validateEmail, validateAmount, sanitizeMessage, sanitizeName, validateUniqueCode } from "@/lib/validation"
 
-// Create Supabase client with service role for server-side operations
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
-
+// Create Supabase client with server-side operations
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 function generateInvoiceNumber(): string {
@@ -36,17 +35,44 @@ export async function createGiftCard({
   uniqueCode: string
 }) {
   try {
+    if (!validateEmail(senderEmail)) {
+      return { error: "Invalid sender email address" }
+    }
+
+    if (recipientEmail && !validateEmail(recipientEmail)) {
+      return { error: "Invalid recipient email address" }
+    }
+
+    const amountValidation = validateAmount(amount)
+    if (!amountValidation.valid) {
+      return { error: amountValidation.error }
+    }
+
+    if (!validateUniqueCode(uniqueCode)) {
+      return { error: "Invalid unique code format" }
+    }
+
+    const sanitizedSenderName = sanitizeName(senderName)
+    const sanitizedRecipientName = sanitizeName(recipientName)
+    const sanitizedMessage = sanitizeMessage(message)
+
+    if (!sanitizedSenderName || !sanitizedRecipientName) {
+      return { error: "Names cannot be empty" }
+    }
+
     const invoiceNumber = generateInvoiceNumber()
+
+    const supabase = await createClient()
 
     const { data, error } = await supabase
       .from("gift_cards")
       .insert({
-        sender_name: senderName,
+        sender_name: sanitizedSenderName,
         sender_email: senderEmail,
-        recipient_name: recipientName,
+        recipient_name: sanitizedRecipientName,
         recipient_email: recipientEmail || "",
         amount: amount,
-        message: message,
+        message: sanitizedMessage,
         card_template: cardTemplate,
         card_image_url: cardImageUrl,
         unique_code: uniqueCode,
@@ -58,15 +84,14 @@ export async function createGiftCard({
       .single()
 
     if (error) {
-      console.error("[v0] Supabase insert error:", error)
+      console.error("Supabase insert error:", error)
       return { error: error.message }
     }
 
     if (recipientEmail && recipientEmail.trim() !== "") {
       try {
-        // Validate environment variables
         if (!process.env.RESEND_API_KEY) {
-          console.error("[v0] RESEND_API_KEY not configured")
+          console.error("RESEND_API_KEY not configured")
           throw new Error("Email service not configured")
         }
 
@@ -74,15 +99,15 @@ export async function createGiftCard({
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://lastminutecards.vercel.app"
         const viewLink = `${appUrl}/view?code=${uniqueCode}`
 
-        console.log("[v0] Sending email to:", recipientEmail)
-        console.log("[v0] From:", fromEmail)
-        console.log("[v0] View link:", viewLink)
+        console.log("Sending email to:", recipientEmail)
+        console.log("From:", fromEmail)
+        console.log("View link:", viewLink)
 
         const emailResult = await resend.emails.send({
           from: fromEmail,
           replyTo: senderEmail || "support@lastminutecards.com",
           to: recipientEmail,
-          subject: `${senderName} sent you a ${amount > 0 ? `£${amount} ` : ""}gift card`,
+          subject: `${sanitizedSenderName} sent you a ${amount > 0 ? `£${amount} ` : ""}gift card`,
           headers: {
             "X-Entity-Ref-ID": uniqueCode,
             "X-Priority": "1",
@@ -113,14 +138,14 @@ export async function createGiftCard({
                     <tr>
                       <td style="padding: 40px 40px 32px 40px; text-align: center; border-bottom: 1px solid #e5e7eb;">
                         <h1 style="color: #F6664C; font-size: 28px; margin: 0 0 8px 0; font-weight: 700; line-height: 1.2;">You've received a gift</h1>
-                        <p style="color: #6b7280; font-size: 16px; margin: 0; line-height: 1.5;">${senderName} has sent you something special</p>
+                        <p style="color: #6b7280; font-size: 16px; margin: 0; line-height: 1.5;">${sanitizedSenderName} has sent you something special</p>
                       </td>
                     </tr>
                     
                     <!-- Main Content -->
                     <tr>
                       <td style="padding: 32px 40px;">
-                        <p style="color: #374151; font-size: 16px; margin: 0 0 24px 0; line-height: 1.6;">Hello ${recipientName},</p>
+                        <p style="color: #374151; font-size: 16px; margin: 0 0 24px 0; line-height: 1.6;">Hello ${sanitizedRecipientName},</p>
                         <p style="color: #374151; font-size: 16px; margin: 0 0 24px 0; line-height: 1.6;">You have received a digital gift card${amount > 0 ? ` worth £${amount}` : ""}. Click the button below to view your personalized card:</p>
                         
                         <!-- CTA Button -->
@@ -141,14 +166,14 @@ export async function createGiftCard({
                         </table>
                         
                         ${
-                          message
+                          sanitizedMessage
                             ? `
                         <!-- Personal Message -->
                         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #fef3f2; border-left: 4px solid #F6664C; border-radius: 4px; margin-top: 24px;">
                           <tr>
                             <td style="padding: 16px 20px;">
-                              <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0; font-weight: 600;">Personal message from ${senderName}:</p>
-                              <p style="color: #374151; font-size: 15px; margin: 0; line-height: 1.6; font-style: italic;">"${message}"</p>
+                              <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0; font-weight: 600;">Personal message from ${sanitizedSenderName}:</p>
+                              <p style="color: #374151; font-size: 15px; margin: 0; line-height: 1.6; font-style: italic;">"${sanitizedMessage}"</p>
                             </td>
                           </tr>
                         </table>
@@ -173,7 +198,7 @@ export async function createGiftCard({
                     <!-- Footer -->
                     <tr>
                       <td style="padding: 24px 40px 40px 40px; border-top: 1px solid #e5e7eb;">
-                        <p style="color: #9ca3af; font-size: 12px; margin: 0 0 8px 0; text-align: center; line-height: 1.5;">This email was sent because ${senderName} (${senderEmail || "sender"}) sent you a gift card from LastMinuteCards.</p>
+                        <p style="color: #9ca3af; font-size: 12px; margin: 0 0 8px 0; text-align: center; line-height: 1.5;">This email was sent because ${sanitizedSenderName} (${senderEmail || "sender"}) sent you a gift card from LastMinuteCards.</p>
                         <p style="color: #9ca3af; font-size: 12px; margin: 0; text-align: center;">© ${new Date().getFullYear()} LastMinuteCards. All rights reserved.</p>
                       </td>
                     </tr>
@@ -196,11 +221,11 @@ export async function createGiftCard({
           </html>
         `,
           text: `
-Hello ${recipientName},
+Hello ${sanitizedRecipientName},
 
-${senderName} has sent you a gift card${amount > 0 ? ` worth £${amount}` : ""}!
+${sanitizedSenderName} has sent you a gift card${amount > 0 ? ` worth £${amount}` : ""}!
 
-${message ? `Personal message: "${message}"` : ""}
+${sanitizedMessage ? `Personal message: "${sanitizedMessage}"` : ""}
 
 View your gift card here: ${viewLink}
 
@@ -212,8 +237,8 @@ If you have any questions, please reply to this email or contact us at support@l
         `.trim(),
         })
 
-        console.log("[v0] Email sent successfully!")
-        console.log("[v0] Email ID:", emailResult.data?.id)
+        console.log("Email sent successfully!")
+        console.log("Email ID:", emailResult.data?.id)
 
         if (emailResult.data?.id) {
           await supabase
@@ -225,8 +250,8 @@ If you have any questions, please reply to this email or contact us at support@l
             .eq("id", data.id)
         }
       } catch (emailError: any) {
-        console.error("[v0] Email send error:", emailError)
-        console.error("[v0] Error details:", JSON.stringify(emailError, null, 2))
+        console.error("Email send error:", emailError)
+        console.error("Error details:", JSON.stringify(emailError, null, 2))
 
         await supabase
           .from("gift_cards")
@@ -237,7 +262,7 @@ If you have any questions, please reply to this email or contact us at support@l
           .eq("id", data.id)
       }
     } else {
-      console.log("[v0] No recipient email provided, skipping email send")
+      console.log("No recipient email provided, skipping email send")
       await supabase
         .from("gift_cards")
         .update({
@@ -249,33 +274,37 @@ If you have any questions, please reply to this email or contact us at support@l
 
     return { success: true, data }
   } catch (error: any) {
-    console.error("[v0] Error creating gift card:", error)
+    console.error("Error creating gift card:", error)
     return { error: error?.message || "Failed to create gift card" }
   }
 }
 
 export async function getGiftCardByCode(uniqueCode: string) {
   try {
-    console.log("[v0] Fetching gift card with code:", uniqueCode)
+    if (!validateUniqueCode(uniqueCode)) {
+      return { data: null, error: "Invalid code format" }
+    }
+
+    const supabase = await createClient()
 
     const { data, error } = await supabase.from("gift_cards").select("*").eq("unique_code", uniqueCode).single()
 
     if (error) {
-      console.error("[v0] Supabase error fetching gift card:", error)
+      console.error("Supabase error fetching gift card:", error)
       // Return a structured error response
       return { data: null, error: error.message || "Gift card not found" }
     }
 
     if (!data) {
-      console.error("[v0] No data returned for gift card")
+      console.error("No data returned for gift card")
       return { data: null, error: "Gift card not found" }
     }
 
-    console.log("[v0] Gift card fetched successfully")
+    console.log("Gift card fetched successfully")
     return { data, error: null }
   } catch (error: any) {
     // Handle unexpected errors (like rate limiting, network issues, etc.)
-    console.error("[v0] Unexpected error in getGiftCardByCode:", error)
+    console.error("Unexpected error in getGiftCardByCode:", error)
     const errorMessage = typeof error === "string" ? error : error?.message || "Failed to fetch gift card"
     return { data: null, error: errorMessage }
   }
@@ -283,6 +312,10 @@ export async function getGiftCardByCode(uniqueCode: string) {
 
 export async function updateGiftCardStatus(uniqueCode: string, status: "Sent" | "Opened" | "Claimed") {
   try {
+    if (!validateUniqueCode(uniqueCode)) {
+      return { error: "Invalid code format" }
+    }
+
     const updateData: any = { status }
 
     if (status === "Opened") {
@@ -290,6 +323,8 @@ export async function updateGiftCardStatus(uniqueCode: string, status: "Sent" | 
     } else if (status === "Claimed") {
       updateData.claimed_at = new Date().toISOString()
     }
+
+    const supabase = await createClient()
 
     const { data, error } = await supabase
       .from("gift_cards")
@@ -299,13 +334,13 @@ export async function updateGiftCardStatus(uniqueCode: string, status: "Sent" | 
       .single()
 
     if (error) {
-      console.error("[v0] Error updating gift card status:", error)
+      console.error("Error updating gift card status:", error)
       return { error: error.message }
     }
 
     return { success: true, data }
   } catch (error: any) {
-    console.error("[v0] Error in updateGiftCardStatus:", error)
+    console.error("Error in updateGiftCardStatus:", error)
     return { error: error?.message || "Failed to update gift card status" }
   }
 }
@@ -326,7 +361,7 @@ export async function decodeGiftCode(encodedCode: string): Promise<string> {
     const decoded = atob(padded)
     return decoded
   } catch (error) {
-    console.error("[v0] Error decoding gift code:", error)
+    console.error("Error decoding gift code:", error)
     throw new Error("Invalid gift code")
   }
 }

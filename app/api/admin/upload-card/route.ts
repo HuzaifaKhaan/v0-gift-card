@@ -1,51 +1,62 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { put } from "@vercel/blob"
-import { createClient } from "@/lib/supabase/server"
+import { isAdminAuthenticated, getAdminClient } from "@/lib/supabase/admin"
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("[v0] Starting upload process")
+    const isAdmin = await isAdminAuthenticated()
+    if (!isAdmin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
     const formData = await request.formData()
     const file = formData.get("file") as File
     const category = formData.get("category") as string
     const name = formData.get("name") as string
 
-    console.log("[v0] Form data received:", { category, name, fileSize: file?.size, fileType: file?.type })
-
     if (!file || !category || !name) {
-      console.log("[v0] Missing required fields")
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const filename = `cards/${category}/${name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.${file.name.split(".").pop()}`
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "File too large. Maximum size is 5MB" }, { status: 400 })
+    }
 
-    console.log("[v0] Uploading to Blob storage:", filename)
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { error: "Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed" },
+        { status: 400 },
+      )
+    }
+
+    const sanitizedName = name.trim().substring(0, 100) // Limit length
+    const sanitizedCategory = category.trim().toLowerCase()
+
+    const filename = `cards/${sanitizedCategory}/${sanitizedName.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.${file.name.split(".").pop()}`
 
     const blob = await put(filename, file, {
       access: "public",
     })
 
-    console.log("[v0] Blob upload successful:", blob.url)
-
-    const supabase = await createClient()
-    const { data: card, error: dbError } = await supabase
+    const { adminClient } = await getAdminClient()
+    const { data: card, error: dbError } = await adminClient
       .from("card_templates")
       .insert({
-        name: name.trim(),
+        name: sanitizedName,
         image_url: blob.url,
-        category: category,
-        subcategory: "general", // Default subcategory
+        category: sanitizedCategory,
+        subcategory: "general",
       })
       .select()
       .single()
 
     if (dbError) {
-      console.error("[v0] Database error:", dbError)
-      return NextResponse.json({ error: "Failed to save card to database", details: dbError.message }, { status: 500 })
+      console.error("Database error:", dbError)
+      return NextResponse.json({ error: "Failed to save card to database" }, { status: 500 })
     }
-
-    console.log("[v0] Card saved to database:", card)
 
     return NextResponse.json({
       success: true,
@@ -54,7 +65,7 @@ export async function POST(request: NextRequest) {
       message: "Card uploaded successfully",
     })
   } catch (error) {
-    console.error("[v0] Upload error:", error)
+    console.error("Upload error:", error)
     return NextResponse.json(
       {
         error: "Upload failed",
