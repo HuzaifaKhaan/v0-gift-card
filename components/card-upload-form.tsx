@@ -88,6 +88,7 @@ export function CardUploadForm({ onUploadSuccess }: CardUploadFormProps) {
       setErrorMessage("")
 
       if (onUploadSuccess) {
+        console.log("[v0] Calling onUploadSuccess callback")
         onUploadSuccess()
       }
 
