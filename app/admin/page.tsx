@@ -29,7 +29,7 @@ import {
   Upload,
 } from "lucide-react"
 import CardUploadForm from "@/components/card-upload-form" // Import the CardUploadForm component
-import CardManagement from "@/components/card-management" // Import CardManagement component
+import CardManagement, { type CardManagementRef } from "@/components/card-management" // Import CardManagement component
 
 interface GiftCard {
   id: string
@@ -371,6 +371,19 @@ export default function AdminDashboard() {
       hour: "2-digit",
       minute: "2-digit",
     })
+  }
+
+  const cardManagementRef = useRef<CardManagementRef>(null)
+
+  const handleCardUploadSuccess = async () => {
+    console.log("[v0] Card upload successful, switching to manage-cards tab and refreshing...")
+    setActiveTab("manage-cards")
+    // Wait a bit for the tab to switch, then refresh
+    setTimeout(async () => {
+      if (cardManagementRef.current) {
+        await cardManagementRef.current.refreshCards()
+      }
+    }, 100)
   }
 
   if (isLoading) {
@@ -769,9 +782,9 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {activeTab === "upload-cards" && <CardUploadForm />}
+          {activeTab === "upload-cards" && <CardUploadForm onUploadSuccess={handleCardUploadSuccess} />}
 
-          {activeTab === "manage-cards" && <CardManagement />}
+          {activeTab === "manage-cards" && <CardManagement ref={cardManagementRef} />}
         </div>
       </main>
 

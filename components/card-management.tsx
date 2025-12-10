@@ -1,11 +1,15 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react"
 import Image from "next/image"
 import { Trash2, Search, Filter, RefreshCw, Loader2 } from "lucide-react"
 import { getCategoryTitle, type CardTemplate } from "@/lib/card-service"
 
-export default function CardManagement() {
+export interface CardManagementRef {
+  refreshCards: () => Promise<void>
+}
+
+const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
   const [cards, setCards] = useState<CardTemplate[]>([])
   const [filteredCards, setFilteredCards] = useState<CardTemplate[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
@@ -15,10 +19,14 @@ export default function CardManagement() {
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchCards = useCallback(async () => {
+    console.log("[v0] Fetching cards from API...")
     setIsLoading(true)
     try {
-      const response = await fetch("/api/cards")
+      const response = await fetch("/api/cards", {
+        cache: "no-store", // Disable caching to always get fresh data
+      })
       const data = await response.json()
+      console.log("[v0] Fetched cards:", data.cards?.length || 0)
       if (data.cards) {
         setCards(data.cards)
         setFilteredCards(data.cards)
@@ -29,6 +37,10 @@ export default function CardManagement() {
       setIsLoading(false)
     }
   }, [])
+
+  useImperativeHandle(ref, () => ({
+    refreshCards: fetchCards,
+  }))
 
   useEffect(() => {
     fetchCards()
@@ -276,4 +288,8 @@ export default function CardManagement() {
       </div>
     </div>
   )
-}
+})
+
+CardManagement.displayName = "CardManagement"
+
+export default CardManagement
