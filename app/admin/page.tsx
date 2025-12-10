@@ -26,7 +26,10 @@ import {
   Settings,
   BarChart3,
   FileText,
+  Upload,
 } from "lucide-react"
+import CardUploadForm from "@/components/card-upload-form" // Import the CardUploadForm component
+import CardManagement from "@/components/card-management" // Import CardManagement component
 
 interface GiftCard {
   id: string
@@ -70,7 +73,7 @@ export default function AdminDashboard() {
   const [giftCards, setGiftCards] = useState<GiftCard[]>([])
   const [filteredCards, setFilteredCards] = useState<GiftCard[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState<"overview" | "activity">("activity")
+  const [activeTab, setActiveTab] = useState<"overview" | "activity" | "upload-cards" | "manage-cards">("activity") // Updated state type
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Dropdowns
@@ -398,6 +401,27 @@ export default function AdminDashboard() {
             <FileText className="w-5 h-5" />
             Check Activity
           </button>
+
+          <button
+            onClick={() => setActiveTab("upload-cards")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+              activeTab === "upload-cards" ? "bg-[#4ECDC4]/10 text-[#4ECDC4]" : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <Upload className="w-5 h-5" />
+            Upload Cards
+          </button>
+
+          <button
+            onClick={() => setActiveTab("manage-cards")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+              activeTab === "manage-cards" ? "bg-[#4ECDC4]/10 text-[#4ECDC4]" : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <ImageIcon className="w-5 h-5" />
+            Manage Cards
+          </button>
+
           <button
             onClick={() => setActiveTab("overview")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
@@ -744,6 +768,10 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
+
+          {activeTab === "upload-cards" && <CardUploadForm />}
+
+          {activeTab === "manage-cards" && <CardManagement />}
         </div>
       </main>
 
