@@ -91,20 +91,44 @@ export const cardTemplates: CardTemplate[] = [
     subcategory: "halloween",
   },
 
-  // Milestone Moments - New baby
+  // Love and Relationships - Anniversary
   {
     id: 67,
-    image: "/new-baby-congratulations-blue-stork.jpg",
-    name: "Blue Stork",
-    category: "milestone-moments",
-    subcategory: "new-baby",
+    image: "/love-relationship-cards/anniversary-collection.png",
+    name: "Anniversary Collection",
+    category: "love-relationships",
+    subcategory: "anniversary",
   },
+  // Love and Relationships - Valentine's Day
   {
     id: 68,
-    image: "/baby-shower-pink-teddy-bear-cute.jpg",
-    name: "Pink Teddy Bear",
-    category: "milestone-moments",
-    subcategory: "new-baby",
+    image: "/love-relationship-cards/happy-valentines.png",
+    name: "Happy Valentines",
+    category: "love-relationships",
+    subcategory: "valentines",
+  },
+  // Love and Relationships - Love & Romance
+  {
+    id: 69,
+    image: "/love-relationship-cards/i-love-you-heart-hands.png",
+    name: "I Love You",
+    category: "love-relationships",
+    subcategory: "love-romance",
+  },
+  {
+    id: 70,
+    image: "/love-relationship-cards/youre-my-lobster.png",
+    name: "You're My Lobster",
+    category: "love-relationships",
+    subcategory: "love-romance",
+  },
+  // Love and Relationships - Wedding
+  {
+    id: 71,
+    image: "/love-relationship-cards/wedding-day.png",
+    name: "Wedding Day",
+    category: "love-relationships",
+    subcategory: "wedding",
   },
 ]
 
@@ -117,7 +141,7 @@ export function getCategoryTitle(category: string): string {
     birthdays: "Birthdays",
     "well-wishes": "Well Wishes",
     seasonal: "Seasonal",
-    "milestone-moments": "Milestone Moments",
+    "love-relationships": "Love and Relationships",
   }
   return titles[category] || category
 }
@@ -134,13 +158,9 @@ export function getSubcategoryTitle(subcategory: string): string {
     halloween: "Halloween",
     easter: "Easter",
     valentines: "Valentines",
-    "new-job": "New Job",
-    "new-baby": "New Baby",
-    "new-home": "New Home",
+    anniversary: "Anniversary",
+    "love-romance": "Love & Romance",
     wedding: "Wedding",
-    retirement: "Retirement",
-    "new-car": "New Car",
-    "just-passed": "Just Passed",
   }
   return titles[subcategory] || subcategory
 }
