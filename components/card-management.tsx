@@ -124,10 +124,10 @@ const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Manage Cards</h2>
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Manage Cards</h2>
           <p className="text-sm text-gray-500 mt-1">View and manage all card templates by category</p>
         </div>
         <div className="flex items-center gap-2">
@@ -136,13 +136,12 @@ const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
           >
             <RefreshCw className="w-4 h-4" />
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
       </div>
 
-      {/* Search and Filter */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
@@ -150,7 +149,7 @@ const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
             placeholder="Search by card name, category, or subcategory..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent"
+            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent text-sm"
           />
         </div>
         <div className="relative">
@@ -158,7 +157,7 @@ const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="pl-10 pr-8 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent bg-white appearance-none cursor-pointer min-w-[200px]"
+            className="w-full lg:min-w-[200px] pl-10 pr-8 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent bg-white appearance-none cursor-pointer text-sm"
           >
             {categories.map((category) => (
               <option key={category} value={category}>
@@ -169,34 +168,33 @@ const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
         </div>
       </div>
 
-      {/* Cards Grid */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {filteredCards.length === 0 ? (
-          <div className="p-12 text-center">
+          <div className="p-8 lg:p-12 text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No cards found</h3>
+            <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-2">No cards found</h3>
             <p className="text-sm text-gray-500">Try adjusting your search or filters, or upload new cards</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[640px]">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Card
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Subcategory
                   </th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 lg:py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -204,8 +202,8 @@ const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
               <tbody className="divide-y divide-gray-200">
                 {filteredCards.map((card) => (
                   <tr key={card.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="w-20 h-28 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                    <td className="px-4 lg:px-6 py-3 lg:py-4">
+                      <div className="w-16 h-20 lg:w-20 lg:h-28 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
                         <Image
                           src={card.image_url || "/placeholder.svg"}
                           alt={card.name}
@@ -214,37 +212,46 @@ const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
                         />
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="font-medium text-gray-900">{card.name}</span>
+                    <td className="px-4 lg:px-6 py-3 lg:py-4">
+                      <span className="font-medium text-gray-900 text-sm">{card.name}</span>
+                      <span className="sm:hidden block mt-1">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getCategoryBadgeColor(card.category)}`}
+                        >
+                          {getCategoryTitle(card.category)}
+                        </span>
+                      </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="hidden sm:table-cell px-4 lg:px-6 py-3 lg:py-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryBadgeColor(card.category)}`}
                       >
                         {getCategoryTitle(card.category)}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="hidden md:table-cell px-4 lg:px-6 py-3 lg:py-4">
                       <span className="text-sm text-gray-600 capitalize">{card.subcategory.replace(/-/g, " ")}</span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 lg:px-6 py-3 lg:py-4 text-right">
                       {showDeleteConfirm === card.id ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <span className="text-sm text-gray-600 mr-2">Are you sure?</span>
-                          <button
-                            onClick={() => handleDeleteCard(card.id)}
-                            disabled={isDeleting === card.id}
-                            className="px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-                          >
-                            {isDeleting === card.id ? "Deleting..." : "Yes, Delete"}
-                          </button>
-                          <button
-                            onClick={() => setShowDeleteConfirm(null)}
-                            disabled={isDeleting === card.id}
-                            className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition-colors"
-                          >
-                            Cancel
-                          </button>
+                        <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-2">
+                          <span className="text-xs lg:text-sm text-gray-600 mr-0 sm:mr-2">Are you sure?</span>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleDeleteCard(card.id)}
+                              disabled={isDeleting === card.id}
+                              className="px-2 lg:px-3 py-1.5 bg-red-600 text-white text-xs lg:text-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                            >
+                              {isDeleting === card.id ? "Deleting..." : "Yes"}
+                            </button>
+                            <button
+                              onClick={() => setShowDeleteConfirm(null)}
+                              disabled={isDeleting === card.id}
+                              className="px-2 lg:px-3 py-1.5 bg-gray-200 text-gray-700 text-xs lg:text-sm rounded-lg hover:bg-gray-300 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <button
@@ -252,7 +259,7 @@ const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete card"
                         >
-                          <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-4 lg:w-5 h-4 lg:h-5" />
                         </button>
                       )}
                     </td>
@@ -264,23 +271,22 @@ const CardManagement = forwardRef<CardManagementRef>((props, ref) => {
         )}
       </div>
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {categories.slice(1).map((category) => (
           <div
             key={category}
-            className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+            className="bg-white border border-gray-200 rounded-lg p-3 lg:p-4 hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => setSelectedCategory(category)}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">{getCategoryTitle(category)}</p>
-                <p className="text-2xl font-bold text-gray-900">{getCardCount(category)}</p>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+              <div className="flex-1">
+                <p className="text-xs lg:text-sm text-gray-500 mb-1 truncate">{getCategoryTitle(category)}</p>
+                <p className="text-xl lg:text-2xl font-bold text-gray-900">{getCardCount(category)}</p>
               </div>
               <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center ${getCategoryBadgeColor(category)}`}
+                className={`w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center ${getCategoryBadgeColor(category)}`}
               >
-                <span className="text-lg font-bold">{getCardCount(category)}</span>
+                <span className="text-base lg:text-lg font-bold">{getCardCount(category)}</span>
               </div>
             </div>
           </div>

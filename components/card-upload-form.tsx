@@ -110,10 +110,10 @@ export function CardUploadForm({ onUploadSuccess }: CardUploadFormProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Left column - Form */}
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           <div>
             <Label htmlFor="card-name" className="text-sm font-medium text-[#185F72] mb-2 block">
               Card Name
@@ -153,7 +153,7 @@ export function CardUploadForm({ onUploadSuccess }: CardUploadFormProps) {
                 htmlFor="card-file"
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#F6664C] hover:bg-[#FFF7F5] transition-colors"
               >
-                <Upload className="w-5 h-5 text-gray-500" />
+                <Upload className="w-5 h-5 text-gray-500 flex-shrink-0" />
                 <span className="text-sm text-gray-600 truncate">{cardFile ? cardFile.name : "Choose image"}</span>
               </label>
               <input id="card-file" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
@@ -162,23 +162,23 @@ export function CardUploadForm({ onUploadSuccess }: CardUploadFormProps) {
           </div>
 
           {errorMessage && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>{errorMessage}</span>
+            <div className="flex items-start gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span className="flex-1">{errorMessage}</span>
             </div>
           )}
 
           {uploadStatus === "success" && (
-            <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg p-3">
-              <CheckCircle className="w-4 h-4 flex-shrink-0" />
-              <span>Card uploaded successfully! It will now appear across the app.</span>
+            <div className="flex items-start gap-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg p-3">
+              <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span className="flex-1">Card uploaded successfully! It will now appear across the app.</span>
             </div>
           )}
 
           <Button
             onClick={handleUpload}
             disabled={isUploading || !cardFile || !selectedCategory || !cardName.trim()}
-            className="w-full bg-gradient-to-r from-[#F6664C] to-[#FF8A75] hover:from-[#e55540] hover:to-[#f77a63] text-white font-semibold py-6 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-[#F6664C] to-[#FF8A75] hover:from-[#e55540] hover:to-[#f77a63] text-white font-semibold py-5 lg:py-6 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? (
               <>
@@ -211,8 +211,8 @@ export function CardUploadForm({ onUploadSuccess }: CardUploadFormProps) {
               </>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <div className="text-center">
-                  <Upload className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <div className="text-center p-4">
+                  <Upload className="w-10 lg:w-12 h-10 lg:h-12 mx-auto mb-2 opacity-50" />
                   <p className="text-sm font-medium">No image selected</p>
                   <p className="text-xs mt-1">Upload to see preview</p>
                 </div>
