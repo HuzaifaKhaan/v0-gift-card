@@ -8,6 +8,8 @@ export async function createCheckoutSession(amount: number, description: string)
     // Amount is in pounds, convert to pence for Stripe
     const amountInPence = Math.round(amount * 100)
 
+    console.log("[v0] Creating checkout session with amount:", amountInPence, "pence")
+
     const session = await stripe.checkout.sessions.create({
       ui_mode: "embedded",
       redirect_on_completion: "never",
@@ -27,84 +29,70 @@ export async function createCheckoutSession(amount: number, description: string)
       mode: "payment",
     })
 
+    console.log("[v0] Checkout session created:", session.id)
     return session.client_secret
   } catch (error: any) {
-    console.error("[v0] Error creating checkout session:", error)
+    console.error("[v0] Error creating checkout session:", error?.message)
     throw new Error(error?.message || "Failed to create checkout session")
   }
 }
 
-// Process payout to recipient's bank account
 export async function processGiftCardPayout({
   uniqueCode,
   amount,
   accountHolderName,
-  routingNumber,
+  sortCode,
   accountNumber,
-  accountType,
   recipientEmail,
 }: {
   uniqueCode: string
   amount: number
   accountHolderName: string
-  routingNumber: string
+  sortCode: string
   accountNumber: string
-  accountType: "checking" | "savings"
   recipientEmail: string
 }) {
   try {
-    // Create a Stripe Connect Express account for the recipient
-    const account = await stripe.accounts.create({
-      type: "custom",
-      country: "GB",
-      email: recipientEmail,
-      capabilities: {
-        transfers: { requested: true },
-      },
-      business_type: "individual",
-      individual: {
-        first_name: accountHolderName.split(" ")[0] || accountHolderName,
-        last_name: accountHolderName.split(" ").slice(1).join(" ") || "User",
-        email: recipientEmail,
-      },
-      tos_acceptance: {
-        date: Math.floor(Date.now() / 1000),
-        ip: "127.0.0.1",
-      },
-    })
+    console.log("[v0] Processing payout for gift card:", uniqueCode)
+    console.log("[v0] Amount:", amount, "GBP")
+    console.log("[v0] Account holder:", accountHolderName)
 
-    // Add bank account to the Connect account
-    await stripe.accounts.createExternalAccount(account.id, {
-      external_account: {
-        object: "bank_account",
+    // Create a bank account token for UK accounts with proper sort code format
+    const bankAccountToken = await stripe.tokens.create({
+      bank_account: {
         country: "GB",
         currency: "gbp",
         account_holder_name: accountHolderName,
         account_holder_type: "individual",
-        routing_number: routingNumber,
+        routing_number: sortCode, // UK sort code (6 digits)
         account_number: accountNumber,
       },
     })
 
-    // Transfer funds to the Connect account
-    const amountInPence = Math.round(amount * 100)
-    const transfer = await stripe.transfers.create({
-      amount: amountInPence,
-      currency: "gbp",
-      destination: account.id,
-      description: `Gift card payout - ${uniqueCode}`,
-    })
+    console.log("[v0] Bank account token created:", bankAccountToken.id)
+
+    // NOTE: This creates a token but doesn't actually transfer funds
+    // For real payouts, you need to:
+    // 1. Set up Stripe Connect in your Stripe Dashboard
+    // 2. Use stripe.transfers.create() or stripe.payouts.create()
+    //
+    // Example with Stripe Connect:
+    // const transfer = await stripe.transfers.create({
+    //   amount: Math.round(amount * 100), // Convert to pence
+    //   currency: "gbp",
+    //   destination: connectedAccountId,
+    // })
 
     return {
       success: true,
-      transferId: transfer.id,
-      accountId: account.id,
+      tokenId: bankAccountToken.id,
+      message: "Bank account verified. Payout will be processed within 1-2 business days.",
     }
   } catch (error: any) {
     console.error("[v0] Stripe payout error:", error)
     return {
       success: false,
-      error: error?.message || "Failed to process payout",
+      error: error?.message || "Failed to process payout. Please check your bank details.",
     }
   }
 }

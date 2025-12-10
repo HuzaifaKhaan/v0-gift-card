@@ -3,14 +3,14 @@
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, Gift, Sparkles } from "lucide-react"
+import { ChevronLeft, ChevronRight, Gift, Sparkles, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { cardTemplates } from "@/lib/card-data"
+import type { CardTemplate } from "@/lib/card-service"
 
 function CustomizeContent() {
   const router = useRouter()
@@ -19,14 +19,14 @@ function CustomizeContent() {
   const templateId = searchParams.get("template")
   const categoryParam = searchParams.get("category")
 
-  const initialTemplateIndex = templateId ? cardTemplates.findIndex((c) => c.id === Number.parseInt(templateId)) : 0
+  const [cardTemplates, setCardTemplates] = useState<CardTemplate[]>([])
+  const [isLoadingCards, setIsLoadingCards] = useState(true)
 
-  const [selectedCard, setSelectedCard] = useState(initialTemplateIndex >= 0 ? initialTemplateIndex : 0)
+  const [selectedCard, setSelectedCard] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || "All")
   const [currentPage, setCurrentPage] = useState(0)
   const [isFlipped, setIsFlipped] = useState(false)
 
-  // Form state
   const [recipientName, setRecipientName] = useState("")
   const [recipientEmail, setRecipientEmail] = useState("")
   const [message, setMessage] = useState("")
@@ -37,15 +37,38 @@ function CustomizeContent() {
   const [senderName, setSenderName] = useState("")
   const [isAnonymous, setIsAnonymous] = useState(false)
 
-  const categories = ["All", "Birthdays", "Well Wishes", "Seasonal", "Milestone Moments"]
+  const categories = ["All", "Birthdays", "Well Wishes", "Seasonal", "Love and Relationships"]
   const cashAmounts = [5, 10, 20, 50, 100, 200]
 
   const categoryMap: Record<string, string> = {
     Birthdays: "birthdays",
     "Well Wishes": "well-wishes",
     Seasonal: "seasonal",
-    "Milestone Moments": "milestone-moments",
+    "Love and Relationships": "love-relationships",
   }
+
+  useEffect(() => {
+    async function fetchCards() {
+      try {
+        const response = await fetch("/api/cards")
+        const data = await response.json()
+        if (data.cards) {
+          setCardTemplates(data.cards)
+          if (templateId) {
+            const index = data.cards.findIndex((c: CardTemplate) => c.id === templateId)
+            if (index >= 0) {
+              setSelectedCard(index)
+            }
+          }
+        }
+      } catch (error) {
+        console.error("[v0] Error fetching cards:", error)
+      } finally {
+        setIsLoadingCards(false)
+      }
+    }
+    fetchCards()
+  }, [templateId])
 
   const filteredCards =
     selectedCategory === "All"
@@ -79,12 +102,14 @@ function CustomizeContent() {
     const selectedTemplate = filteredCards[selectedCard] || cardTemplates[selectedCard] || cardTemplates[0]
     const actualAmount = getActualAmount()
 
+    if (!selectedTemplate) return
+
     const checkoutData = {
       recipientName,
       email: recipientEmail,
       message,
       amount: actualAmount,
-      cardImage: selectedTemplate.image,
+      cardImage: selectedTemplate.image_url,
       cardCategory: selectedTemplate.name,
       senderName: isAnonymous ? "Anonymous" : senderName,
     }
@@ -93,8 +118,7 @@ function CustomizeContent() {
     router.push("/checkout")
   }
 
-  const isFormValid =
-    recipientName && recipientEmail && message && (isAnonymous || senderName) && (!includeGift || getActualAmount() > 0)
+  const isFormValid = recipientName && (includeGift ? getActualAmount() > 0 : true) && (isAnonymous || senderName)
 
   const currentCard = filteredCards[selectedCard] || cardTemplates[0]
   const displayAmount = getActualAmount()
@@ -107,12 +131,26 @@ function CustomizeContent() {
     }
   }, [categoryParam])
 
+  if (isLoadingCards) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        <Header />
+        <div className="flex items-center justify-center py-24">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-[#185F72] mx-auto mb-4" />
+            <p className="text-gray-500">Loading cards...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Header />
 
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
-        {/* Page Title */}
         <div className="text-center mb-4 sm:mb-6 md:mb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
             Create Your Gift Card
@@ -121,7 +159,6 @@ function CustomizeContent() {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">
-          {/* Left Column - Card Preview */}
           <div className="order-1 lg:order-1">
             <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 sticky top-24">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
@@ -129,28 +166,39 @@ function CustomizeContent() {
                 Card Preview
               </h2>
 
-              {/* Flip Card Container */}
               <div
                 className="relative mx-auto cursor-pointer"
-                style={{ perspective: "1000px", maxWidth: "320px" }}
+                style={{
+                  perspective: "1000px",
+                  maxWidth: "320px",
+                  WebkitPerspective: "1000px",
+                  transformStyle: "preserve-3d",
+                  WebkitTransformStyle: "preserve-3d",
+                }}
                 onClick={() => setIsFlipped(!isFlipped)}
               >
                 <div
-                  className="relative w-full transition-transform duration-700"
+                  className="relative aspect-[3/4] w-full transition-transform duration-700"
                   style={{
                     transformStyle: "preserve-3d",
+                    WebkitTransformStyle: "preserve-3d",
                     transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                    WebkitTransform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                   }}
                 >
-                  {/* Front of Card */}
                   <div
-                    className="w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
-                    style={{ backfaceVisibility: "hidden" }}
+                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
+                    style={{
+                      backfaceVisibility: "hidden",
+                      WebkitBackfaceVisibility: "hidden",
+                      transform: "rotateY(0deg)",
+                      WebkitTransform: "rotateY(0deg)",
+                    }}
                   >
-                    <div className="aspect-[3/4] relative">
+                    <div className="w-full h-full relative">
                       <Image
-                        src={currentCard.image || "/placeholder.svg"}
-                        alt={currentCard.name}
+                        src={currentCard?.image_url || "/placeholder.svg"}
+                        alt={currentCard?.name || "Card"}
                         fill
                         className="object-cover"
                       />
@@ -164,12 +212,13 @@ function CustomizeContent() {
                     </div>
                   </div>
 
-                  {/* Back of Card */}
                   <div
-                    className="absolute inset-0 w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#185F72] to-[#0d3d4a]"
+                    className="absolute inset-0 w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#185F72] to-[#0d3d4a]"
                     style={{
                       backfaceVisibility: "hidden",
+                      WebkitBackfaceVisibility: "hidden",
                       transform: "rotateY(180deg)",
+                      WebkitTransform: "rotateY(180deg)",
                     }}
                   >
                     <div className="aspect-[3/4] flex flex-col justify-between p-4 sm:p-6 text-white">
@@ -202,9 +251,7 @@ function CustomizeContent() {
             </div>
           </div>
 
-          {/* Right Column - Form */}
           <div className="order-2 lg:order-2 space-y-4 sm:space-y-6">
-            {/* Categories */}
             <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 sm:mb-3">Categories</h3>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
@@ -228,7 +275,6 @@ function CustomizeContent() {
               </div>
             </div>
 
-            {/* Template Selection */}
             <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Select Template</h3>
@@ -242,12 +288,12 @@ function CustomizeContent() {
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   <span className="font-medium">
-                    {currentPage + 1} of {totalPages}
+                    {totalPages > 0 ? `${currentPage + 1} of ${totalPages}` : "0 of 0"}
                   </span>
                   <button
                     className="p-1 hover:bg-gray-100 rounded cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
                     onClick={handleNextPage}
-                    disabled={currentPage === totalPages - 1}
+                    disabled={currentPage >= totalPages - 1}
                     aria-label="Next page"
                   >
                     <ChevronRight className="h-4 w-4" />
@@ -255,24 +301,35 @@ function CustomizeContent() {
                 </div>
               </div>
 
-              {/* Template Grid */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                {displayedCards.map((card, index) => (
-                  <div key={card.id} className="space-y-1.5 sm:space-y-2">
-                    <div
-                      className={`aspect-[3/4] relative rounded-lg overflow-hidden border-2 transition-all cursor-pointer hover:shadow-md ${
-                        selectedCard === startIndex + index
-                          ? "border-[#F6664C] ring-2 ring-[#F6664C] ring-offset-2"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                      onClick={() => setSelectedCard(startIndex + index)}
-                    >
-                      <Image src={card.image || "/placeholder.svg"} alt={card.name} fill className="object-cover" />
+              {displayedCards.length > 0 ? (
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  {displayedCards.map((card, index) => (
+                    <div key={card.id} className="space-y-1.5 sm:space-y-2">
+                      <div
+                        className={`aspect-[3/4] relative rounded-lg overflow-hidden border-2 transition-all cursor-pointer hover:shadow-md ${
+                          selectedCard === startIndex + index
+                            ? "border-[#F6664C] ring-2 ring-[#F6664C] ring-offset-2"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                        onClick={() => setSelectedCard(startIndex + index)}
+                      >
+                        <Image
+                          src={card.image_url || "/placeholder.svg"}
+                          alt={card.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-600 text-center truncate">{card.name}</p>
                     </div>
-                    <p className="text-xs text-gray-600 text-center truncate">{card.name}</p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Gift className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">No cards in this category</p>
+                </div>
+              )}
             </div>
 
             <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
@@ -357,7 +414,6 @@ function CustomizeContent() {
               )}
             </div>
 
-            {/* Recipient Details */}
             <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 sm:mb-4">
                 Recipient Details
@@ -375,30 +431,31 @@ function CustomizeContent() {
                     className="mt-1"
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="recipientEmail" className="text-sm text-gray-700">
-                    Recipient Email
+                    Recipient Email (Optional)
                   </Label>
                   <Input
                     id="recipientEmail"
                     type="email"
-                    placeholder="Enter recipient's email"
+                    placeholder="Enter recipient's email (optional)"
                     value={recipientEmail}
                     onChange={(e) => setRecipientEmail(e.target.value)}
-                    className="mt-1"
+                    className="h-11 text-sm bg-white/80"
                   />
+                  <p className="text-xs text-gray-500">If provided, we'll send the card directly to their inbox</p>
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="message" className="text-sm text-gray-700">
-                    Personal Message
+                    Personal Message (Optional)
                   </Label>
                   <Textarea
                     id="message"
-                    placeholder="Write a heartfelt message..."
+                    placeholder="Write your heartfelt message here (optional)..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    rows={3}
-                    className="mt-1 resize-none"
+                    rows={4}
+                    className="resize-none text-sm bg-white/80"
                   />
                 </div>
               </div>
@@ -427,6 +484,7 @@ function CustomizeContent() {
                     />
                   </button>
                 </div>
+
                 {!isAnonymous && (
                   <div>
                     <Label htmlFor="senderName" className="text-sm text-gray-700">
@@ -444,14 +502,13 @@ function CustomizeContent() {
               </div>
             </div>
 
-            {/* Continue Button */}
             <Button
               onClick={handleContinue}
-              disabled={!isFormValid}
-              className="w-full bg-[#F6664C] hover:bg-[#e55a42] text-white py-4 sm:py-6 text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              disabled={!isFormValid || !currentCard}
+              className="w-full bg-gradient-to-r from-[#F6664C] to-[#FF8A75] hover:from-[#e55540] hover:to-[#f77a63] text-white font-semibold py-6 sm:py-8 text-base sm:text-lg rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Gift className="h-5 w-5 mr-2" />
-              {includeGift ? "Continue to Checkout" : "Send Card"}
+              <Gift className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+              Continue to Checkout
             </Button>
           </div>
         </div>
@@ -467,10 +524,7 @@ export default function CustomizePage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-[#F6664C] mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
-          </div>
+          <Loader2 className="w-8 h-8 animate-spin text-[#185F72]" />
         </div>
       }
     >

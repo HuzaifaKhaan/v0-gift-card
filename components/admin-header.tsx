@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Bell, User, Key, LogOut, ChevronDown, RefreshCw, Gift, Eye, DollarSign } from "lucide-react"
-import { createBrowserClient } from "@supabase/ssr"
+import { createClient } from "@/lib/supabase/client"
 
 interface Notification {
   id: string
@@ -56,10 +56,7 @@ export default function AdminHeader({
   const notificationRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  )
+  const supabase = createClient()
 
   // Click outside handler
   useEffect(() => {

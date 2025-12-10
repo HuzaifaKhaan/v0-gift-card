@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { createBrowserClient } from "@supabase/ssr"
+import { createClient } from "@/lib/supabase/client"
 import {
   Search,
   Download,
@@ -26,7 +26,11 @@ import {
   Settings,
   BarChart3,
   FileText,
+  Upload,
+  Menu,
 } from "lucide-react"
+import CardUploadForm from "@/components/card-upload-form"
+import CardManagement, { type CardManagementRef } from "@/components/card-management"
 
 interface GiftCard {
   id: string
@@ -70,8 +74,10 @@ export default function AdminDashboard() {
   const [giftCards, setGiftCards] = useState<GiftCard[]>([])
   const [filteredCards, setFilteredCards] = useState<GiftCard[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState<"overview" | "activity">("activity")
+  const [activeTab, setActiveTab] = useState<"overview" | "activity" | "upload-cards" | "manage-cards">("activity") // Updated state type
   const [isRefreshing, setIsRefreshing] = useState(false)
+  // Added mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Dropdowns
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false)
@@ -110,10 +116,7 @@ export default function AdminDashboard() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  )
+  const supabase = createClient()
 
   // Click outside handler for dropdowns
   useEffect(() => {
@@ -370,6 +373,24 @@ export default function AdminDashboard() {
     })
   }
 
+  const cardManagementRef = useRef<CardManagementRef>(null)
+
+  const handleCardUploadSuccess = async () => {
+    console.log("[v0] Card upload successful, switching to manage-cards tab and refreshing...")
+    setActiveTab("manage-cards")
+    setIsMobileMenuOpen(false)
+    setTimeout(async () => {
+      if (cardManagementRef.current) {
+        await cardManagementRef.current.refreshCards()
+      }
+    }, 100)
+  }
+
+  const handleTabChange = (tab: "overview" | "activity" | "upload-cards" | "manage-cards") => {
+    setActiveTab(tab)
+    setIsMobileMenuOpen(false)
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -380,17 +401,38 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full">
-        <div className="p-6 border-b border-gray-100">
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`
+        w-64 bg-white border-r border-gray-200 flex flex-col
+        fixed h-full z-50 transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+        lg:translate-x-0
+      `}
+      >
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
           <Link href="/">
             <Image src="/images/logo-color.png" alt="LastMinuteCards" width={150} height={50} className="h-12 w-auto" />
           </Link>
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <button
-            onClick={() => setActiveTab("activity")}
+            onClick={() => handleTabChange("activity")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
               activeTab === "activity" ? "bg-[#4ECDC4]/10 text-[#4ECDC4]" : "text-gray-600 hover:bg-gray-50"
             }`}
@@ -398,8 +440,29 @@ export default function AdminDashboard() {
             <FileText className="w-5 h-5" />
             Check Activity
           </button>
+
           <button
-            onClick={() => setActiveTab("overview")}
+            onClick={() => handleTabChange("upload-cards")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+              activeTab === "upload-cards" ? "bg-[#4ECDC4]/10 text-[#4ECDC4]" : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <Upload className="w-5 h-5" />
+            Upload Cards
+          </button>
+
+          <button
+            onClick={() => handleTabChange("manage-cards")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+              activeTab === "manage-cards" ? "bg-[#4ECDC4]/10 text-[#4ECDC4]" : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <ImageIcon className="w-5 h-5" />
+            Manage Cards
+          </button>
+
+          <button
+            onClick={() => handleTabChange("overview")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
               activeTab === "overview" ? "bg-[#4ECDC4]/10 text-[#4ECDC4]" : "text-gray-600 hover:bg-gray-50"
             }`}
@@ -427,11 +490,18 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 ml-64">
-        {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-30">
-          <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
+      <main className="flex-1 lg:ml-64 w-full">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu className="w-6 h-6 text-gray-600" />
+            </button>
+            <h1 className="text-lg lg:text-xl font-bold text-gray-900">Dashboard</h1>
+          </div>
 
           <div className="flex items-center gap-2">
             {/* Refresh */}
@@ -744,6 +814,10 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
+
+          {activeTab === "upload-cards" && <CardUploadForm onUploadSuccess={handleCardUploadSuccess} />}
+
+          {activeTab === "manage-cards" && <CardManagement ref={cardManagementRef} />}
         </div>
       </main>
 

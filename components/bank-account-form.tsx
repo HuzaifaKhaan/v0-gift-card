@@ -14,17 +14,17 @@ import { updateGiftCardStatus } from "@/app/actions/gift-cards"
 interface BankAccountFormProps {
   uniqueCode: string
   amount: number
-  recipientEmail: string
-  recipientName: string
-  onSuccess: () => void
-  onCancel: () => void
+  recipientEmail?: string
+  recipientName?: string
+  onSuccess?: () => void
+  onCancel?: () => void
 }
 
 export function BankAccountForm({
   uniqueCode,
   amount,
-  recipientEmail,
-  recipientName,
+  recipientEmail = "",
+  recipientName = "",
   onSuccess,
   onCancel,
 }: BankAccountFormProps) {
@@ -34,10 +34,9 @@ export function BankAccountForm({
   const [confirmedDetails, setConfirmedDetails] = useState(false)
   const [formData, setFormData] = useState({
     accountHolderName: recipientName || "",
-    routingNumber: "",
+    sortCode: "",
     accountNumber: "",
     confirmAccountNumber: "",
-    accountType: "checking" as "checking" | "savings",
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,13 +53,13 @@ export function BankAccountForm({
       return
     }
 
-    if (formData.routingNumber.length !== 9) {
-      setError("Routing number must be 9 digits")
+    if (formData.sortCode.replace(/[-\s]/g, "").length !== 6) {
+      setError("Sort code must be 6 digits (e.g., 12-34-56)")
       return
     }
 
-    if (formData.accountNumber.length < 4 || formData.accountNumber.length > 17) {
-      setError("Please enter a valid account number")
+    if (formData.accountNumber.length !== 8) {
+      setError("Account number must be 8 digits")
       return
     }
 
@@ -71,15 +70,16 @@ export function BankAccountForm({
         uniqueCode,
         amount,
         accountHolderName: formData.accountHolderName,
-        routingNumber: formData.routingNumber,
+        sortCode: formData.sortCode.replace(/[-\s]/g, ""), // Remove formatting
         accountNumber: formData.accountNumber,
-        accountType: formData.accountType,
         recipientEmail,
       })
 
       if (result.success) {
         await updateGiftCardStatus(uniqueCode, "Claimed")
-        onSuccess()
+        if (onSuccess) {
+          onSuccess()
+        }
       } else {
         setError(result.error || "Failed to process payout. Please try again.")
       }
@@ -108,7 +108,7 @@ export function BankAccountForm({
         </div>
         <CardTitle className="text-xl sm:text-2xl font-bold">Ready to claim your gift?</CardTitle>
         <CardDescription className="text-xs sm:text-sm text-gray-600">
-          Securely add your bank details to receive your cash gift!
+          Securely add your UK bank details to receive your cash gift!
         </CardDescription>
       </CardHeader>
 
@@ -130,21 +130,29 @@ export function BankAccountForm({
           </div>
 
           <div className="space-y-1.5 sm:space-y-2">
-            <Label htmlFor="routingNumber" className="text-xs sm:text-sm">
-              Routing Number
+            <Label htmlFor="sortCode" className="text-xs sm:text-sm">
+              Sort Code
             </Label>
             <Input
-              id="routingNumber"
-              value={formData.routingNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, routingNumber: e.target.value.replace(/\D/g, "").slice(0, 9) })
-              }
-              placeholder="9 digits"
-              maxLength={9}
+              id="sortCode"
+              value={formData.sortCode}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "").slice(0, 6)
+                if (value.length > 2) {
+                  value = value.slice(0, 2) + "-" + value.slice(2)
+                }
+                if (value.length > 5) {
+                  value = value.slice(0, 5) + "-" + value.slice(5)
+                }
+                setFormData({ ...formData, sortCode: value })
+              }}
+              placeholder="12-34-56"
+              maxLength={8}
               required
               disabled={isProcessing}
               className="text-sm sm:text-base h-9 sm:h-10"
             />
+            <p className="text-xs text-gray-500">6 digits (e.g., 12-34-56)</p>
           </div>
 
           <div className="space-y-1.5 sm:space-y-2">
@@ -155,12 +163,16 @@ export function BankAccountForm({
               id="accountNumber"
               type="password"
               value={formData.accountNumber}
-              onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value.replace(/\D/g, "") })}
-              placeholder="Your account number"
+              onChange={(e) =>
+                setFormData({ ...formData, accountNumber: e.target.value.replace(/\D/g, "").slice(0, 8) })
+              }
+              placeholder="8 digits"
+              maxLength={8}
               required
               disabled={isProcessing}
               className="text-sm sm:text-base h-9 sm:h-10"
             />
+            <p className="text-xs text-gray-500">Typically 8 digits</p>
           </div>
 
           <div className="space-y-1.5 sm:space-y-2">
@@ -170,42 +182,15 @@ export function BankAccountForm({
             <Input
               id="confirmAccountNumber"
               value={formData.confirmAccountNumber}
-              onChange={(e) => setFormData({ ...formData, confirmAccountNumber: e.target.value.replace(/\D/g, "") })}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmAccountNumber: e.target.value.replace(/\D/g, "").slice(0, 8) })
+              }
               placeholder="Re-enter account number"
+              maxLength={8}
               required
               disabled={isProcessing}
               className="text-sm sm:text-base h-9 sm:h-10"
             />
-          </div>
-
-          <div className="space-y-1.5 sm:space-y-2">
-            <Label className="text-xs sm:text-sm">Account Type</Label>
-            <div className="flex gap-4 sm:gap-6">
-              <label className="flex items-center gap-2 cursor-pointer text-sm">
-                <input
-                  type="radio"
-                  name="accountType"
-                  value="checking"
-                  checked={formData.accountType === "checking"}
-                  onChange={() => setFormData({ ...formData, accountType: "checking" })}
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C]"
-                  disabled={isProcessing}
-                />
-                <span>Checking</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-sm">
-                <input
-                  type="radio"
-                  name="accountType"
-                  value="savings"
-                  checked={formData.accountType === "savings"}
-                  onChange={() => setFormData({ ...formData, accountType: "savings" })}
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F6664C]"
-                  disabled={isProcessing}
-                />
-                <span>Savings</span>
-              </label>
-            </div>
           </div>
 
           <div className="space-y-3 pt-2">
@@ -269,19 +254,21 @@ export function BankAccountForm({
           </div>
 
           <div className="flex gap-2 sm:gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isProcessing}
-              className="flex-1 bg-transparent text-sm h-10 sm:h-11"
-            >
-              Cancel
-            </Button>
+            {onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isProcessing}
+                className="flex-1 bg-transparent text-sm h-10 sm:h-11"
+              >
+                Cancel
+              </Button>
+            )}
             <Button
               type="submit"
               disabled={isProcessing || !canSubmit}
-              className="flex-1 bg-[#F6664C] hover:bg-[#e55a43] text-white text-sm h-10 sm:h-11 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`${onCancel ? "flex-1" : "w-full"} bg-[#F6664C] hover:bg-[#e55a43] text-white text-sm h-10 sm:h-11 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {isProcessing ? (
                 <span className="flex items-center gap-2">

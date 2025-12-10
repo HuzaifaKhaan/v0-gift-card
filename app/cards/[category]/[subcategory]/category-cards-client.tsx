@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Gift } from "lucide-react"
+import { ArrowLeft, Gift, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { getCardsBySubcategory, getCategoryTitle, getSubcategoryTitle } from "@/lib/card-data"
+import { getCategoryTitle, getSubcategoryTitle, type CardTemplate } from "@/lib/card-service"
 
 interface CategoryCardsClientProps {
   category: string
@@ -15,11 +15,37 @@ interface CategoryCardsClientProps {
 }
 
 export function CategoryCardsClient({ category, subcategory }: CategoryCardsClientProps) {
-  const cards = getCardsBySubcategory(category, subcategory)
+  const [cards, setCards] = useState<CardTemplate[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+
   const categoryTitle = getCategoryTitle(category)
   const subcategoryTitle = getSubcategoryTitle(subcategory)
 
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  useEffect(() => {
+    async function fetchCards() {
+      try {
+        // Fetch cards by category (subcategory filtering can be added if needed)
+        const response = await fetch(`/api/cards?category=${category}`)
+        const data = await response.json()
+        if (data.cards) {
+          // Filter by subcategory if not "general"
+          const filteredCards =
+            subcategory === "all"
+              ? data.cards
+              : data.cards.filter(
+                  (card: CardTemplate) => card.subcategory === subcategory || card.subcategory === "general",
+                )
+          setCards(filteredCards)
+        }
+      } catch (error) {
+        console.error("[v0] Error fetching cards:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchCards()
+  }, [category, subcategory])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -48,8 +74,16 @@ export function CategoryCardsClient({ category, subcategory }: CategoryCardsClie
           </p>
         </div>
 
-        {/* Cards Grid */}
-        {cards.length > 0 ? (
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin text-[#185F72] mx-auto mb-4" />
+              <p className="text-gray-500">Loading cards...</p>
+            </div>
+          </div>
+        ) : cards.length > 0 ? (
+          /* Cards Grid */
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
             {cards.map((card) => (
               <Link
@@ -62,7 +96,7 @@ export function CategoryCardsClient({ category, subcategory }: CategoryCardsClie
                 <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#185F72]/30">
                   <div className="aspect-[3/4] relative overflow-hidden">
                     <Image
-                      src={card.image || "/placeholder.svg"}
+                      src={card.image_url || "/placeholder.svg"}
                       alt={card.name}
                       fill
                       className={`object-cover transition-transform duration-500 ${

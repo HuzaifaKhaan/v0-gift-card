@@ -1,11 +1,36 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import Link from "next/link"
 import Image from "next/image"
+import { Loader2 } from "lucide-react"
+import type { CardTemplate } from "@/lib/card-service"
 
 export default function Home() {
+  const [featuredCards, setFeaturedCards] = useState<CardTemplate[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchCards() {
+      try {
+        const response = await fetch("/api/cards")
+        const data = await response.json()
+        if (data.cards) {
+          setFeaturedCards(data.cards.slice(0, 4))
+        }
+      } catch (error) {
+        console.error("[v0] Error fetching cards:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchCards()
+  }, [])
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -171,7 +196,7 @@ export default function Home() {
                     fill="#185F72"
                   />
                   <path
-                    d="M12 38V48C12 50.2091 13.7909 52 16 52H48C50.2091 52 52 50.2091 52 48V38L32 46L12 38Z"
+                    d="M12 38V48C12 50.2091 13.7909 52 16 52H48C50.2091 52 52 50.2091 52 48V38L32 42L12 38Z"
                     fill="#F6664C"
                   />
                   <path d="M32 20L28 12H22L26 20H32ZM32 20L36 12H42L38 20H32Z" fill="#F6664C" />
@@ -201,71 +226,35 @@ export default function Home() {
             Featured Card Designs
           </h2>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8 max-w-6xl mx-auto mb-8 sm:mb-12">
-            {/* Card 1 - Halloween */}
-            <div className="group relative overflow-hidden rounded-lg sm:rounded-xl shadow-md sm:shadow-lg hover:shadow-2xl transition-all duration-300 bg-white transform hover:scale-105">
-              <div className="aspect-[3/4] relative">
-                <Image
-                  src="/halloween-greeting-card-with-orange-plaid-backgrou.jpg"
-                  alt="Halloween card with orange plaid background and black cat"
-                  width={400}
-                  height={533}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center p-2 sm:p-4">
-                  <p className="text-white font-semibold text-xs sm:text-sm">Halloween</p>
-                </div>
-              </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-[#185F72]" />
             </div>
-
-            {/* Card 2 - Holiday Dinner */}
-            <div className="group relative overflow-hidden rounded-lg sm:rounded-xl shadow-md sm:shadow-lg hover:shadow-2xl transition-all duration-300 bg-white transform hover:scale-105">
-              <div className="aspect-[3/4] relative">
-                <Image
-                  src="/holiday-party-invitation-with-pink-poinsettia-flow.jpg"
-                  alt="Holiday party invitation with poinsettia flowers"
-                  width={400}
-                  height={533}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center p-2 sm:p-4">
-                  <p className="text-white font-semibold text-xs sm:text-sm">Holiday</p>
+          ) : featuredCards.length > 0 ? (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8 max-w-6xl mx-auto mb-8 sm:mb-12">
+              {featuredCards.map((card) => (
+                <div
+                  key={card.id}
+                  className="group relative overflow-hidden rounded-lg sm:rounded-xl shadow-md sm:shadow-lg hover:shadow-2xl transition-all duration-300 bg-white transform hover:scale-105"
+                >
+                  <div className="aspect-[3/4] relative">
+                    <Image
+                      src={card.image_url || "/placeholder.svg"}
+                      alt={card.name}
+                      width={400}
+                      height={533}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center p-2 sm:p-4">
+                      <p className="text-white font-semibold text-xs sm:text-sm">{card.name}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-
-            {/* Card 3 - Christmas Wreath */}
-            <div className="group relative overflow-hidden rounded-lg sm:rounded-xl shadow-md sm:shadow-lg hover:shadow-2xl transition-all duration-300 bg-white transform hover:scale-105">
-              <div className="aspect-[3/4] relative">
-                <Image
-                  src="/merry-bright-christmas-wreath-red-green-holly.jpg"
-                  alt="Merry and Bright Christmas wreath with holly"
-                  width={400}
-                  height={533}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center p-2 sm:p-4">
-                  <p className="text-white font-semibold text-xs sm:text-sm">Christmas</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4 - Christmas Party */}
-            <div className="group relative overflow-hidden rounded-lg sm:rounded-xl shadow-md sm:shadow-lg hover:shadow-2xl transition-all duration-300 bg-white transform hover:scale-105">
-              <div className="aspect-[3/4] relative">
-                <Image
-                  src="/merry-little-christmas-party-invitation-with-festi.jpg"
-                  alt="Merry Little Christmas Party invitation with festive decorations"
-                  width={400}
-                  height={533}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center p-2 sm:p-4">
-                  <p className="text-white font-semibold text-xs sm:text-sm">Festive</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          ) : (
+            <p className="text-center text-gray-500 py-12">No cards available yet</p>
+          )}
 
           {/* View More Button */}
           <div className="flex justify-center">
@@ -338,21 +327,23 @@ export default function Home() {
                 <div className="space-y-3 sm:space-y-4">
                   <AccordionItem value="item-1" className="border-b border-gray-200">
                     <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      Can I send an ecard without becoming a member?
+                      How do I attach a cash gift?
                     </AccordionTrigger>
                     <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      Yes, you can send an ecard as a guest without creating an account. However, becoming a member
-                      gives you access to additional features and benefits.
+                      To attach a cash gift (you can send a card without cash too!), simply choose the amount you'd like
+                      to add in the card design page. It's free to send cash and your money is kept safe using Stripe to
+                      handle payments.
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="item-2" className="border-b border-gray-200">
                     <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      How do I send an ecard?
+                      How does the recipient receive the money?
                     </AccordionTrigger>
                     <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      Simply choose a card, customize your message, optionally add a cash gift, and send it to your
-                      recipient's email. It's that easy!
+                      Your loved one will be able to claim the money you've attached to the card once they've opened the
+                      card. They'll need to enter a unique code (you'll have this in your email), bank details and the
+                      money will be released into their bank!
                     </AccordionContent>
                   </AccordionItem>
                 </div>
@@ -361,21 +352,33 @@ export default function Home() {
                 <div className="space-y-3 sm:space-y-4">
                   <AccordionItem value="item-3" className="border-b border-gray-200">
                     <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      How much does a membership cost?
+                      What if the recipient doesn't receive the card?
                     </AccordionTrigger>
                     <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      We offer flexible membership plans starting at $9.99/month. Check our pricing page for detailed
-                      information on all available plans.
+                      The card will be sent to the recipient's email, if the email was incorrect, don't worry! Nobody
+                      can open the card without the unique code, and you can always just share the link you get after
+                      checkout with them via text/messaging apps!
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="item-4" className="border-b border-gray-200">
                     <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      How does your 7-day free trial work?
+                      What if the recipient enters the wrong bank details?
                     </AccordionTrigger>
                     <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      Start your free 7-day trial with full access to all features. No credit card required. Cancel
-                      anytime before the trial ends with no charges.
+                      Unfortunately, if the recipient enters the wrong bank details, LastMinuteCards is not responsible
+                      for losses due to this. This is stated in the Terms of Service, however we try our best to prevent
+                      this from happening.
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="item-5" className="border-b border-gray-200">
+                    <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
+                      Can I personalise my card?
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
+                      Yes! All cards are customisable, you can either use one our designs and add your own name/message.
+                      However, you can create your own card using an image of your choice.
                     </AccordionContent>
                   </AccordionItem>
                 </div>
