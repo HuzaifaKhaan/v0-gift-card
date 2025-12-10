@@ -25,14 +25,20 @@ interface StripeCheckoutProps {
   onComplete: () => void
 }
 
-export default function StripeCheckout({ amount, recipientName, senderName, onComplete }: StripeCheckoutProps) {
+export default function StripeCheckout({
+  amount,
+  recipientName,
+  senderName,
+  uniqueCode,
+  onComplete,
+}: StripeCheckoutProps) {
   const [error, setError] = useState<string | null>(null)
 
   const fetchClientSecret = useCallback(async () => {
     try {
       setError(null)
       const description = `Gift card from ${senderName} to ${recipientName}`
-      const clientSecret = await createCheckoutSession(amount, description)
+      const clientSecret = await createCheckoutSession(amount, description, uniqueCode)
 
       if (!clientSecret) {
         throw new Error("No client secret returned")
@@ -44,7 +50,7 @@ export default function StripeCheckout({ amount, recipientName, senderName, onCo
       setError(errorMessage)
       throw err
     }
-  }, [amount, senderName, recipientName])
+  }, [amount, senderName, recipientName, uniqueCode])
 
   if (error) {
     return (
