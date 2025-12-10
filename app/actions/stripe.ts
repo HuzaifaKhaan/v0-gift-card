@@ -15,6 +15,7 @@ export async function createCheckoutSession(amount: number, description: string)
 
     const session = await stripe.checkout.sessions.create({
       ui_mode: "embedded",
+      redirect_on_completion: "never",
       return_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       line_items: [
         {
@@ -35,8 +36,7 @@ export async function createCheckoutSession(amount: number, description: string)
     console.log("[v0] Checkout session created:", session.id)
     return session.client_secret
   } catch (error: any) {
-    console.error("[v0] Error creating checkout session:", error)
-    console.error("[v0] Error details:", JSON.stringify(error, null, 2))
+    console.error("[v0] Error creating checkout session:", error?.message)
     throw new Error(error?.message || "Failed to create checkout session")
   }
 }

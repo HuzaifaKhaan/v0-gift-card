@@ -8,4 +8,4 @@ if (!stripeSecretKey) {
   console.error("[v0] STRIPE_SECRET_KEY is not set")
 }
 
-export const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : (null as unknown as Stripe)
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
