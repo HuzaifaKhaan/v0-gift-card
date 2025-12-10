@@ -1,17 +1,38 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
-import { Trash2, Search, Filter, RefreshCw } from "lucide-react"
-import { cardTemplates, getCategoryTitle, type CardTemplate } from "@/lib/card-data"
+import { Trash2, Search, Filter, RefreshCw, Loader2 } from "lucide-react"
+import { getCategoryTitle, type CardTemplate } from "@/lib/card-service"
 
 export default function CardManagement() {
-  const [cards, setCards] = useState<CardTemplate[]>(cardTemplates)
-  const [filteredCards, setFilteredCards] = useState<CardTemplate[]>(cardTemplates)
+  const [cards, setCards] = useState<CardTemplate[]>([])
+  const [filteredCards, setFilteredCards] = useState<CardTemplate[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const [isDeleting, setIsDeleting] = useState<number | null>(null)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
+  const [isDeleting, setIsDeleting] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const fetchCards = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/cards")
+      const data = await response.json()
+      if (data.cards) {
+        setCards(data.cards)
+        setFilteredCards(data.cards)
+      }
+    } catch (error) {
+      console.error("[v0] Error fetching cards:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchCards()
+  }, [fetchCards])
 
   // Get unique categories
   const categories = ["all", ...Array.from(new Set(cards.map((card) => card.category)))]
@@ -36,7 +57,7 @@ export default function CardManagement() {
     setFilteredCards(filtered)
   }, [selectedCategory, searchQuery, cards])
 
-  const handleDeleteCard = async (cardId: number) => {
+  const handleDeleteCard = async (cardId: string) => {
     setIsDeleting(cardId)
 
     try {
@@ -49,7 +70,8 @@ export default function CardManagement() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to delete card")
+        const data = await response.json()
+        throw new Error(data.error || "Failed to delete card")
       }
 
       // Remove card from local state
@@ -57,7 +79,7 @@ export default function CardManagement() {
       setShowDeleteConfirm(null)
     } catch (error) {
       console.error("[v0] Delete error:", error)
-      alert("Failed to delete card. Please try again.")
+      alert(error instanceof Error ? error.message : "Failed to delete card. Please try again.")
     } finally {
       setIsDeleting(null)
     }
@@ -78,6 +100,17 @@ export default function CardManagement() {
     return cards.filter((card) => card.category === category).length
   }
 
+  if (isLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[#4ECDC4] mx-auto mb-4" />
+          <p className="text-gray-500">Loading cards...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -87,11 +120,7 @@ export default function CardManagement() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => {
-              setCards([...cardTemplates])
-              setSearchQuery("")
-              setSelectedCategory("all")
-            }}
+            onClick={fetchCards}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
           >
             <RefreshCw className="w-4 h-4" />
@@ -136,7 +165,7 @@ export default function CardManagement() {
               <Search className="w-8 h-8 text-gray-400" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No cards found</h3>
-            <p className="text-sm text-gray-500">Try adjusting your search or filters</p>
+            <p className="text-sm text-gray-500">Try adjusting your search or filters, or upload new cards</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -165,7 +194,12 @@ export default function CardManagement() {
                   <tr key={card.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="w-20 h-28 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                        <Image src={card.image || "/placeholder.svg"} alt={card.name} fill className="object-cover" />
+                        <Image
+                          src={card.image_url || "/placeholder.svg"}
+                          alt={card.name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                     </td>
                     <td className="px-6 py-4">

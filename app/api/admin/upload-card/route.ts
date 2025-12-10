@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { put } from "@vercel/blob"
+import { createClient } from "@/lib/supabase/server"
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const filename = `${category}-${name.toLowerCase().replace(/\s+/g, "-")}.${file.name.split(".").pop()}`
+    const filename = `cards/${category}/${name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.${file.name.split(".").pop()}`
 
     console.log("[v0] Uploading to Blob storage:", filename)
 
@@ -25,10 +26,30 @@ export async function POST(request: NextRequest) {
       access: "public",
     })
 
-    console.log("[v0] Upload successful:", blob.url)
+    console.log("[v0] Blob upload successful:", blob.url)
+
+    const supabase = await createClient()
+    const { data: card, error: dbError } = await supabase
+      .from("card_templates")
+      .insert({
+        name: name.trim(),
+        image_url: blob.url,
+        category: category,
+        subcategory: "general", // Default subcategory
+      })
+      .select()
+      .single()
+
+    if (dbError) {
+      console.error("[v0] Database error:", dbError)
+      return NextResponse.json({ error: "Failed to save card to database", details: dbError.message }, { status: 500 })
+    }
+
+    console.log("[v0] Card saved to database:", card)
 
     return NextResponse.json({
       success: true,
+      card: card,
       imageUrl: blob.url,
       message: "Card uploaded successfully",
     })

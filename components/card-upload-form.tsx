@@ -17,7 +17,11 @@ const CATEGORIES = [
   { value: "love-relationships", label: "Love and Relationships" },
 ]
 
-export function CardUploadForm() {
+interface CardUploadFormProps {
+  onUploadSuccess?: () => void
+}
+
+export function CardUploadForm({ onUploadSuccess }: CardUploadFormProps) {
   const [selectedCategory, setSelectedCategory] = useState("")
   const [cardName, setCardName] = useState("")
   const [cardFile, setCardFile] = useState<File | null>(null)
@@ -82,6 +86,10 @@ export function CardUploadForm() {
       setCardName("")
       setSelectedCategory("")
       setErrorMessage("")
+
+      if (onUploadSuccess) {
+        onUploadSuccess()
+      }
 
       // Auto-reset success message after 3 seconds
       setTimeout(() => setUploadStatus("idle"), 3000)
@@ -162,7 +170,7 @@ export function CardUploadForm() {
           {uploadStatus === "success" && (
             <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg p-3">
               <CheckCircle className="w-4 h-4 flex-shrink-0" />
-              <span>Card uploaded successfully!</span>
+              <span>Card uploaded successfully! It will now appear across the app.</span>
             </div>
           )}
 

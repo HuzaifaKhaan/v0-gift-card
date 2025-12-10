@@ -1,4 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { del } from "@vercel/blob"
+import { createClient } from "@/lib/supabase/server"
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -10,18 +12,44 @@ export async function DELETE(request: NextRequest) {
 
     console.log("[v0] Deleting card with ID:", cardId)
 
-    // Note: This endpoint marks the card as deleted but doesn't remove from card-data.ts
-    // For production, you would:
-    // 1. Store cards in database instead of static file
-    // 2. Mark card as deleted or remove from database
-    // 3. Delete associated image from Vercel Blob storage if exists
+    const supabase = await createClient()
 
-    // For now, we'll just return success
-    // The frontend will handle removing it from the UI state
+    const { data: card, error: fetchError } = await supabase
+      .from("card_templates")
+      .select("*")
+      .eq("id", cardId)
+      .single()
+
+    if (fetchError || !card) {
+      console.error("[v0] Card not found:", fetchError)
+      return NextResponse.json({ error: "Card not found" }, { status: 404 })
+    }
+
+    const { error: deleteError } = await supabase.from("card_templates").delete().eq("id", cardId)
+
+    if (deleteError) {
+      console.error("[v0] Database delete error:", deleteError)
+      return NextResponse.json(
+        { error: "Failed to delete card from database", details: deleteError.message },
+        { status: 500 },
+      )
+    }
+
+    if (card.image_url && card.image_url.includes("blob.vercel-storage.com")) {
+      try {
+        await del(card.image_url)
+        console.log("[v0] Blob deleted successfully")
+      } catch (blobError) {
+        console.error("[v0] Blob delete error (non-critical):", blobError)
+        // Continue even if blob delete fails - card is already removed from DB
+      }
+    }
+
+    console.log("[v0] Card deleted successfully")
+
     return NextResponse.json({
       success: true,
       message: "Card deleted successfully",
-      note: "Card removed from UI. To permanently delete, remove from lib/card-data.ts",
     })
   } catch (error) {
     console.error("[v0] Delete card error:", error)
