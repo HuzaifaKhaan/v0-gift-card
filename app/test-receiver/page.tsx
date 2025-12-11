@@ -29,7 +29,7 @@ export default function TestReceiverPage() {
     setResult(null)
 
     try {
-      const uniqueCode = `TEST-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+      const uniqueCode = Math.random().toString(36).substring(2, 10).toUpperCase()
 
       const giftCardData = {
         recipientName: formData.recipientName,
