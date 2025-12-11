@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, Menu, Facebook, Instagram, Gift, TestTube } from "lucide-react"
+import { Search, Menu, Facebook, Instagram, Gift } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
@@ -68,17 +68,6 @@ export function Header() {
           </nav>
 
           <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2">
-            <Link href="/test-receiver">
-              <Button
-                variant="outline"
-                size="sm"
-                className="hidden md:flex items-center gap-2 border-orange-500 text-orange-600 hover:bg-orange-50 px-3 py-2 text-xs font-medium transition-colors cursor-pointer bg-transparent"
-              >
-                <TestTube className="h-3 w-3" />
-                <span>Test</span>
-              </Button>
-            </Link>
-
             <Link href="/claim-reward">
               <Button className="hidden sm:flex items-center gap-2 bg-[#185F72] hover:bg-[#144857] text-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors cursor-pointer">
                 <Gift className="h-4 w-4" />
@@ -116,16 +105,6 @@ export function Header() {
                   </div>
 
                   <div className="p-4 border-b border-gray-200 space-y-2">
-                    <Link href="/test-receiver" onClick={() => setMobileMenuOpen(false)}>
-                      <Button
-                        variant="outline"
-                        className="w-full flex items-center justify-center gap-2 border-orange-500 text-orange-600 hover:bg-orange-50 py-3 font-medium transition-colors cursor-pointer bg-transparent"
-                      >
-                        <TestTube className="h-5 w-5" />
-                        Test Gift Card Receiver
-                      </Button>
-                    </Link>
-
                     <Link href="/claim-reward" onClick={() => setMobileMenuOpen(false)}>
                       <Button className="w-full flex items-center justify-center gap-2 bg-[#185F72] hover:bg-[#144857] text-white py-3 font-medium transition-colors cursor-pointer">
                         <Gift className="h-5 w-5" />
