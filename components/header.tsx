@@ -71,7 +71,7 @@ export function Header() {
             <Link href="/claim-reward">
               <Button className="hidden sm:flex items-center gap-2 bg-[#185F72] hover:bg-[#144857] text-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors cursor-pointer">
                 <Gift className="h-4 w-4" />
-                <span className="hidden md:inline">Claim Your Gift Card</span>
+                <span className="hidden md:inline">Claim Your Cash Gift</span>
                 <span className="md:hidden">Claim Gift</span>
               </Button>
             </Link>
@@ -108,7 +108,7 @@ export function Header() {
                     <Link href="/claim-reward" onClick={() => setMobileMenuOpen(false)}>
                       <Button className="w-full flex items-center justify-center gap-2 bg-[#185F72] hover:bg-[#144857] text-white py-3 font-medium transition-colors cursor-pointer">
                         <Gift className="h-5 w-5" />
-                        Claim Your Gift Card
+                        Claim Your Cash Gift
                       </Button>
                     </Link>
                   </div>

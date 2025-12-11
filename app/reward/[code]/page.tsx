@@ -115,7 +115,7 @@ export default function RewardClaimPage() {
                 <Gift className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Claim Your Gift</h2>
-              <p className="text-gray-600 mb-6">Enter your unique code to view and claim your gift card</p>
+              <p className="text-gray-600 mb-6">Enter your unique code to view and claim your cash gift</p>
             </CardContent>
           </Card>
 

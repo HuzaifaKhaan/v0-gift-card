@@ -70,7 +70,7 @@ export function CategoryCardsClient({ category, subcategory }: CategoryCardsClie
           </h1>
           <p className="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto">
             Browse our beautiful collection of {subcategoryTitle.toLowerCase()} gift cards. Select a design and
-            customize it with your personal message.
+            customise it with your personal message.
           </p>
         </div>
 
@@ -111,13 +111,13 @@ export function CategoryCardsClient({ category, subcategory }: CategoryCardsClie
                     >
                       <div className="text-center text-white p-4">
                         <Gift className="h-8 w-8 mx-auto mb-2" />
-                        <span className="text-sm font-medium">Customize Card</span>
+                        <span className="text-sm font-medium">Customise Card</span>
                       </div>
                     </div>
                   </div>
                   <div className="p-3 sm:p-4">
                     <h3 className="text-sm sm:text-base font-medium text-gray-900 truncate">{card.name}</h3>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-1">Click to customize</p>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">Click to customise</p>
                   </div>
                 </div>
               </Link>

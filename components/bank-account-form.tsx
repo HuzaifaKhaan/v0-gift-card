@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { processGiftCardPayout } from "@/app/actions/stripe"
 import { updateGiftCardStatus } from "@/app/actions/gift-cards"
+import { Eye, EyeOff } from "lucide-react"
 
 interface BankAccountFormProps {
   uniqueCode: string
@@ -32,6 +33,8 @@ export function BankAccountForm({
   const [error, setError] = useState("")
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [confirmedDetails, setConfirmedDetails] = useState(false)
+  const [showAccountNumber, setShowAccountNumber] = useState(false)
+  const [showConfirmAccountNumber, setShowConfirmAccountNumber] = useState(false)
   const [formData, setFormData] = useState({
     accountHolderName: recipientName || "",
     sortCode: "",
@@ -159,19 +162,29 @@ export function BankAccountForm({
             <Label htmlFor="accountNumber" className="text-xs sm:text-sm">
               Account Number
             </Label>
-            <Input
-              id="accountNumber"
-              type="password"
-              value={formData.accountNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, accountNumber: e.target.value.replace(/\D/g, "").slice(0, 8) })
-              }
-              placeholder="8 digits"
-              maxLength={8}
-              required
-              disabled={isProcessing}
-              className="text-sm sm:text-base h-9 sm:h-10"
-            />
+            <div className="relative">
+              <Input
+                id="accountNumber"
+                type={showAccountNumber ? "text" : "password"}
+                value={formData.accountNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, accountNumber: e.target.value.replace(/\D/g, "").slice(0, 8) })
+                }
+                placeholder="8 digits"
+                maxLength={8}
+                required
+                disabled={isProcessing}
+                className="text-sm sm:text-base h-9 sm:h-10 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowAccountNumber(!showAccountNumber)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={isProcessing}
+              >
+                {showAccountNumber ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
             <p className="text-xs text-gray-500">Typically 8 digits</p>
           </div>
 
@@ -179,18 +192,29 @@ export function BankAccountForm({
             <Label htmlFor="confirmAccountNumber" className="text-xs sm:text-sm">
               Confirm Account Number
             </Label>
-            <Input
-              id="confirmAccountNumber"
-              value={formData.confirmAccountNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, confirmAccountNumber: e.target.value.replace(/\D/g, "").slice(0, 8) })
-              }
-              placeholder="Re-enter account number"
-              maxLength={8}
-              required
-              disabled={isProcessing}
-              className="text-sm sm:text-base h-9 sm:h-10"
-            />
+            <div className="relative">
+              <Input
+                id="confirmAccountNumber"
+                type={showConfirmAccountNumber ? "text" : "password"}
+                value={formData.confirmAccountNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmAccountNumber: e.target.value.replace(/\D/g, "").slice(0, 8) })
+                }
+                placeholder="Re-enter account number"
+                maxLength={8}
+                required
+                disabled={isProcessing}
+                className="text-sm sm:text-base h-9 sm:h-10 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmAccountNumber(!showConfirmAccountNumber)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={isProcessing}
+              >
+                {showConfirmAccountNumber ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-3 pt-2">

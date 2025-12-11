@@ -155,7 +155,7 @@ function CustomizeContent() {
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
             Create Your Gift Card
           </h1>
-          <p className="text-gray-600 text-xs sm:text-sm md:text-base">Customize your card and add a personal touch</p>
+          <p className="text-gray-600 text-xs sm:text-sm md:text-base">Customise your card and add a personal touch</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">

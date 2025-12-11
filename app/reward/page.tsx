@@ -156,7 +156,7 @@ function RewardPageContent() {
 
           {/* Call to Action */}
           <div className="bg-gradient-to-br from-[#F6664C] to-[#e55a42] rounded-xl p-6 text-white mb-4">
-            <h3 className="text-xl font-bold mb-2">Ready to Claim Your Reward?</h3>
+            <h3 className="text-xl font-bold mb-2">Ready to Claim Your Gift?</h3>
             <p className="text-white/90 mb-4">
               Transfer your gift card amount directly to your bank account. It's quick, secure, and powered by Stripe.
             </p>

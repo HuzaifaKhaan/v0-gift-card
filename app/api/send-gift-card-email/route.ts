@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
               <p>Click the button below to view your personalized card and claim your gift:</p>
               
               <div style="text-align: center;">
-                <a href="${claimLink}" class="button">Claim Your Gift Card</a>
+                <a href="${claimLink}" class="button">Claim Your Cash Gift</a>
               </div>
               
               <p>Or enter this unique code on our website:</p>
