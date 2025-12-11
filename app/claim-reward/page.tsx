@@ -341,33 +341,44 @@ export default function ClaimRewardPage() {
       </div>
 
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center animate-in zoom-in duration-500">
-              <PartyPopper className="w-8 h-8 text-white" />
+        <DialogContent className="sm:max-w-md bg-white border-2 border-[#F6664C]/20 shadow-2xl">
+          <DialogHeader className="text-center space-y-4">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center animate-in zoom-in duration-500 shadow-lg">
+              <PartyPopper className="w-10 h-10 text-white" />
             </div>
-            <DialogTitle className="text-2xl font-bold text-gray-900">Success!</DialogTitle>
-            <DialogDescription className="text-base text-gray-600 mt-2">
+            <DialogTitle className="text-3xl font-bold text-gray-900">Gift Claimed!</DialogTitle>
+            <DialogDescription className="text-base text-gray-600 leading-relaxed">
               Your gift has been claimed successfully! The funds will be transferred to your bank account within 3-5
               business days.
             </DialogDescription>
           </DialogHeader>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-5 mt-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-green-800">
-                <p className="font-semibold mb-1">What happens next?</p>
-                <ul className="space-y-1 list-disc list-inside ml-2">
-                  <li>Payment is being processed by Stripe</li>
-                  <li>You'll receive a confirmation email</li>
-                  <li>Funds typically arrive in 3-5 business days</li>
+              <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <CheckCircle className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-sm text-gray-800 flex-1">
+                <p className="font-bold text-green-800 mb-2 text-base">What happens next?</p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold mt-0.5">•</span>
+                    <span>Payment is being processed securely by Stripe</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold mt-0.5">•</span>
+                    <span>You'll receive a confirmation email shortly</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold mt-0.5">•</span>
+                    <span>Funds typically arrive in 3-5 business days</span>
+                  </li>
                 </ul>
               </div>
             </div>
           </div>
           <Button
             onClick={() => setShowSuccessModal(false)}
-            className="w-full mt-4 bg-[#F6664C] hover:bg-[#e55a43] text-white"
+            className="w-full mt-6 h-12 text-base font-semibold bg-gradient-to-r from-[#F6664C] to-[#ff8c73] hover:from-[#e55a43] hover:to-[#ff7b5e] text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] rounded-lg"
           >
             Close
           </Button>
