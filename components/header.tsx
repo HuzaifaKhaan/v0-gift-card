@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, Menu, Facebook, Instagram, Gift } from "lucide-react"
+import { Menu, Facebook, Instagram, Gift } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
@@ -75,15 +75,6 @@ export function Header() {
                 <span className="md:hidden">Claim Gift</span>
               </Button>
             </Link>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-gray-700 hover:text-[#185F72] cursor-pointer h-8 w-8 sm:h-10 sm:w-10"
-              aria-label="Search"
-            >
-              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
-            </Button>
 
             {/* Mobile menu button - show until lg breakpoint */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

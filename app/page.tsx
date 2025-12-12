@@ -314,76 +314,111 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-12 sm:py-16 md:py-24 bg-white" id="faq">
+      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-b from-white to-[#FFF7F5]" id="faq">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-8 sm:mb-12 md:mb-16">
-              Frequently Asked Questions
-            </h2>
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-8 sm:mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 text-balance">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto text-pretty">
+                Got questions? We've got answers. Find everything you need to know about LastMinuteCards.
+              </p>
+            </div>
 
-            <Accordion type="single" collapsible className="w-full">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
-                {/* Left Column */}
-                <div className="space-y-3 sm:space-y-4">
-                  <AccordionItem value="item-1" className="border-b border-gray-200">
-                    <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      How do I attach a cash gift?
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      To attach a cash gift (you can send a card without cash too!), simply choose the amount you'd like
-                      to add in the card design page. It's free to send cash and your money is kept safe using Stripe to
-                      handle payments.
-                    </AccordionContent>
-                  </AccordionItem>
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 md:p-8">
+              <Accordion type="single" collapsible className="w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-8 lg:gap-x-12">
+                  {/* Left Column */}
+                  <div className="space-y-2">
+                    <AccordionItem value="item-1" className="border-b border-gray-200 last:border-0">
+                      <AccordionTrigger className="text-left text-sm sm:text-base font-semibold text-gray-900 hover:text-[#F6664C] hover:no-underline py-4 sm:py-5 transition-colors">
+                        How do I attach a cash gift?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-gray-600 pb-4 sm:pb-5 text-sm sm:text-base leading-relaxed">
+                        To attach a cash gift (you can send a card without cash too!), simply choose the amount you'd
+                        like to add in the card design page. It's free to send cash and your money is kept safe using
+                        Stripe to handle payments.
+                      </AccordionContent>
+                    </AccordionItem>
 
-                  <AccordionItem value="item-2" className="border-b border-gray-200">
-                    <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      How does the recipient receive the money?
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      Your loved one will be able to claim the money you've attached to the card once they've opened the
-                      card. They'll need to enter a unique code (you'll have this in your email), bank details and the
-                      money will be released into their bank!
-                    </AccordionContent>
-                  </AccordionItem>
+                    <AccordionItem value="item-2" className="border-b border-gray-200 last:border-0">
+                      <AccordionTrigger className="text-left text-sm sm:text-base font-semibold text-gray-900 hover:text-[#F6664C] hover:no-underline py-4 sm:py-5 transition-colors">
+                        How does the recipient receive the money?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-gray-600 pb-4 sm:pb-5 text-sm sm:text-base leading-relaxed">
+                        Your loved one will be able to claim the money you've attached to the card once they've opened
+                        the card. They'll need to enter a unique code (you'll have this in your email), bank details and
+                        the money will be released into their bank!
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="item-3" className="border-b border-gray-200 md:border-0">
+                      <AccordionTrigger className="text-left text-sm sm:text-base font-semibold text-gray-900 hover:text-[#F6664C] hover:no-underline py-4 sm:py-5 transition-colors">
+                        What if the recipient doesn't receive the card?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-gray-600 pb-4 sm:pb-5 text-sm sm:text-base leading-relaxed">
+                        The card will be sent to the recipient's email. If the email was incorrect, don't worry! Nobody
+                        can open the card without the unique code, and you can always just share the link you get after
+                        checkout with them via text/messaging apps!
+                      </AccordionContent>
+                    </AccordionItem>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-2">
+                    <AccordionItem value="item-4" className="border-b border-gray-200 last:border-0">
+                      <AccordionTrigger className="text-left text-sm sm:text-base font-semibold text-gray-900 hover:text-[#F6664C] hover:no-underline py-4 sm:py-5 transition-colors">
+                        What if the recipient enters the wrong bank details?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-gray-600 pb-4 sm:pb-5 text-sm sm:text-base leading-relaxed">
+                        Unfortunately, if the recipient enters the wrong bank details, LastMinuteCards is not
+                        responsible for losses due to this. This is stated in the Terms of Service, however we try our
+                        best to prevent this from happening.
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="item-5" className="border-b border-gray-200 last:border-0">
+                      <AccordionTrigger className="text-left text-sm sm:text-base font-semibold text-gray-900 hover:text-[#F6664C] hover:no-underline py-4 sm:py-5 transition-colors">
+                        Can I personalise my card?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-gray-600 pb-4 sm:pb-5 text-sm sm:text-base leading-relaxed">
+                        Yes! All cards are customisable. You can either use one of our designs and add your own
+                        name/message, or you can create your own card using an image of your choice.
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="item-6" className="border-b border-gray-200 last:border-0">
+                      <AccordionTrigger className="text-left text-sm sm:text-base font-semibold text-gray-900 hover:text-[#F6664C] hover:no-underline py-4 sm:py-5 transition-colors">
+                        Is my payment secure?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-gray-600 pb-4 sm:pb-5 text-sm sm:text-base leading-relaxed">
+                        All payments are processed securely through Stripe, one of the world's most trusted payment
+                        platforms. Your financial information is encrypted and never stored on our servers.
+                      </AccordionContent>
+                    </AccordionItem>
+                  </div>
                 </div>
+              </Accordion>
+            </div>
 
-                {/* Right Column */}
-                <div className="space-y-3 sm:space-y-4">
-                  <AccordionItem value="item-3" className="border-b border-gray-200">
-                    <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      What if the recipient doesn't receive the card?
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      The card will be sent to the recipient's email, if the email was incorrect, don't worry! Nobody
-                      can open the card without the unique code, and you can always just share the link you get after
-                      checkout with them via text/messaging apps!
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="item-4" className="border-b border-gray-200">
-                    <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      What if the recipient enters the wrong bank details?
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      Unfortunately, if the recipient enters the wrong bank details, LastMinuteCards is not responsible
-                      for losses due to this. This is stated in the Terms of Service, however we try our best to prevent
-                      this from happening.
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="item-5" className="border-b border-gray-200">
-                    <AccordionTrigger className="text-left text-sm sm:text-base hover:no-underline py-3 sm:py-4">
-                      Can I personalise my card?
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 pb-3 sm:pb-4 text-sm">
-                      Yes! All cards are customisable, you can either use one our designs and add your own name/message.
-                      However, you can create your own card using an image of your choice.
-                    </AccordionContent>
-                  </AccordionItem>
-                </div>
-              </div>
-            </Accordion>
+            {/* CTA Section */}
+            <div className="mt-8 sm:mt-12 text-center bg-gradient-to-r from-[#185F72] to-[#2A7A8F] rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-10 shadow-xl">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4 text-balance">
+                Still have questions?
+              </h3>
+              <p className="text-white/90 text-sm sm:text-base md:text-lg mb-5 sm:mb-6 max-w-2xl mx-auto text-pretty">
+                We're here to help! Reach out to our support team and we'll get back to you as soon as possible.
+              </p>
+              <Link href="mailto:support@lastminutecards.com">
+                <Button
+                  size="lg"
+                  className="bg-[#F6664C] hover:bg-[#E55540] text-white font-semibold px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-lg transition-all cursor-pointer shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                >
+                  Contact Support
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
