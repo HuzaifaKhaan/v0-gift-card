@@ -1,7 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
@@ -17,15 +18,26 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-
   const supabase = createClient()
+
+  useEffect(() => {
+    const checkExistingAuth = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (user && user.user_metadata?.role === "admin") {
+        router.replace("/admin")
+      }
+    }
+
+    checkExistingAuth()
+  }, [router, supabase])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setIsLoading(true)
-
-    console.log("[v0] Login attempt for:", email)
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -33,41 +45,29 @@ export default function AdminLoginPage() {
         password,
       })
 
-      console.log("[v0] Login response:", { data, error })
-
       if (error) {
-        console.error("[v0] Login error:", error)
         setError(error.message)
         setIsLoading(false)
         return
       }
 
-      if (data.user) {
-        console.log("[v0] User logged in successfully:", data.user.email)
-        console.log("[v0] User metadata:", data.user.user_metadata)
-
-        // Check if user has admin role
-        const userRole = data.user.user_metadata?.role
-        console.log("[v0] User role:", userRole)
-
-        if (userRole !== "admin") {
-          setError("You do not have admin access")
-          await supabase.auth.signOut()
-          setIsLoading(false)
-          return
-        }
-
-        // Navigate to admin dashboard
-        console.log("[v0] Redirecting to /admin")
-        router.push("/admin")
-        router.refresh()
-      } else {
-        console.error("[v0] No user data returned")
+      if (!data.user) {
         setError("Login failed - no user data")
         setIsLoading(false)
+        return
       }
+
+      const userRole = data.user.user_metadata?.role
+
+      if (userRole !== "admin") {
+        setError("You do not have admin access")
+        await supabase.auth.signOut()
+        setIsLoading(false)
+        return
+      }
+
+      router.replace("/admin")
     } catch (err) {
-      console.error("[v0] Unexpected error:", err)
       setError("An unexpected error occurred")
       setIsLoading(false)
     }
@@ -77,7 +77,6 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Logo */}
           <div className="flex justify-center mb-8">
             <Image
               src="/images/logo-color.png"
@@ -88,20 +87,17 @@ export default function AdminLoginPage() {
             />
           </div>
 
-          {/* Title */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
             <p className="text-gray-500 text-sm">Sign in to access the admin panel</p>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -177,7 +173,6 @@ export default function AdminLoginPage() {
             </Button>
           </form>
 
-          {/* Footer */}
           <p className="mt-8 text-center text-xs text-gray-400">
             This area is restricted to authorized administrators only.
           </p>

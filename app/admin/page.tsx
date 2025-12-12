@@ -134,21 +134,46 @@ export default function AdminDashboard() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // Check auth
   useEffect(() => {
+    let mounted = true
+
     const checkAuth = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) {
-        router.push("/admin/login")
-        return
+      try {
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser()
+
+        if (!mounted) return
+
+        if (error || !user) {
+          router.replace("/admin/login")
+          return
+        }
+
+        const userRole = user.user_metadata?.role
+
+        if (userRole !== "admin") {
+          await supabase.auth.signOut()
+          router.replace("/admin/login")
+          return
+        }
+
+        setUser(user)
+        setIsLoading(false)
+      } catch (err) {
+        if (mounted) {
+          router.replace("/admin/login")
+        }
       }
-      setUser(user)
-      setIsLoading(false)
     }
+
     checkAuth()
-  }, [router, supabase.auth])
+
+    return () => {
+      mounted = false
+    }
+  }, [router, supabase])
 
   // Fetch gift cards
   const fetchGiftCards = async () => {
