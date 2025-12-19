@@ -1,29 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
-import Stripe from "stripe"
-
-// Initialize Stripe directly in API route for better error handling
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+import { stripe } from "@/lib/stripe"
 
 export async function POST(request: NextRequest) {
   try {
-    // Validate Stripe key exists
-    if (!stripeSecretKey) {
-      console.error("[v0] STRIPE_SECRET_KEY is not configured")
-      return NextResponse.json({ error: "Payment system not configured" }, { status: 500 })
-    }
-
-    // Validate key format
-    if (!stripeSecretKey.startsWith("sk_test_") && !stripeSecretKey.startsWith("sk_live_")) {
-      console.error("[v0] Invalid STRIPE_SECRET_KEY format - must start with sk_test_ or sk_live_")
-      return NextResponse.json({ error: "Payment system configuration error" }, { status: 500 })
-    }
-
-    const stripe = new Stripe(stripeSecretKey)
-
     const body = await request.json()
     const { amount, description } = body
 
     if (!amount || amount <= 0) {
+      console.error("[v0] Invalid amount:", amount)
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 })
     }
 
@@ -57,8 +41,29 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ clientSecret: session.client_secret })
   } catch (error: any) {
-    console.error("[v0] Stripe error:", error?.message || error)
-    console.error("[v0] Full error:", JSON.stringify(error, null, 2))
+    console.error("[v0] Error creating checkout session:", error?.message || error)
+
+    if (error?.type === "StripeAuthenticationError") {
+      return NextResponse.json(
+        {
+          error:
+            "Stripe API key is invalid or has been revoked. Please update your STRIPE_SECRET_KEY in environment variables.",
+          details: "Go to v0 sidebar → Vars → Update STRIPE_SECRET_KEY with a valid test key (sk_test_...)",
+        },
+        { status: 500 },
+      )
+    }
+
+    if (error?.statusCode === 401) {
+      return NextResponse.json(
+        {
+          error: "Invalid Stripe API credentials. Please check your STRIPE_SECRET_KEY.",
+          details:
+            "The API key may be revoked or incorrect. Get a new key from Stripe Dashboard → Developers → API keys",
+        },
+        { status: 401 },
+      )
+    }
 
     return NextResponse.json({ error: error?.message || "Failed to create checkout session" }, { status: 500 })
   }

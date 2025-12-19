@@ -100,20 +100,20 @@ export async function processGiftCardPayout({
     })
 
     const supabase = createClient()
-    const last4Digits = cleanedAccountNumber.slice(-4)
-    const formattedSortCode = cleanedSortCode.replace(/(\d{2})(\d{2})(\d{2})/, "$1-$2-$3")
+    const last4 = cleanedAccountNumber.slice(-4)
 
     const { error: updateError } = await supabase
       .from("gift_cards")
       .update({
         account_holder_name: sanitizedName,
-        sort_code: formattedSortCode,
-        account_number_last4: last4Digits,
+        sort_code: cleanedSortCode,
+        account_number_last4: last4,
       })
       .eq("unique_code", uniqueCode)
 
     if (updateError) {
-      console.error("[v0] Error updating bank details:", updateError)
+      console.error("[v0] Error saving bank details:", updateError)
+      // Don't fail the payout if saving bank details fails, but log it
     }
 
     return {
