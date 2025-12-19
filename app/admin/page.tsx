@@ -52,6 +52,10 @@ interface GiftCard {
   card_image_url: string | null
   card_template: string | null
   unique_code: string
+  // Added bank details fields
+  account_holder_name: string | null
+  sort_code: string | null
+  account_number_last4: string | null
 }
 
 interface DashboardStats {
@@ -824,7 +828,7 @@ export default function AdminDashboard() {
 
               <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[640px]">
+                  <table className="w-full min-w-[800px]">
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
                         <th className="text-left text-xs font-medium text-gray-500 uppercase px-3 sm:px-6 py-3 sm:py-4">
@@ -839,6 +843,10 @@ export default function AdminDashboard() {
                         <th className="text-left text-xs font-medium text-gray-500 uppercase px-3 sm:px-6 py-3 sm:py-4">
                           Recipient
                         </th>
+                        <th className="text-left text-xs font-medium text-gray-500 uppercase px-3 sm:px-6 py-3 sm:py-4">
+                          Bank Details
+                        </th>
+                        {/* </CHANGE> */}
                         <th className="text-left text-xs font-medium text-gray-500 uppercase px-3 sm:px-6 py-3 sm:py-4">
                           Amount
                         </th>
@@ -871,6 +879,21 @@ export default function AdminDashboard() {
                           <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 truncate max-w-[100px]">
                             {card.recipient_name}
                           </td>
+                          <td className="px-3 sm:px-6 py-3 sm:py-4">
+                            {card.account_holder_name ? (
+                              <div className="text-xs space-y-0.5">
+                                <div className="font-medium text-gray-900 truncate max-w-[120px]">
+                                  {card.account_holder_name}
+                                </div>
+                                <div className="text-gray-500 font-mono">
+                                  {card.sort_code} •••• {card.account_number_last4}
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-gray-400">-</span>
+                            )}
+                          </td>
+                          {/* </CHANGE> */}
                           <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-[#4ECDC4]">
                             {card.amount > 0 ? `£${card.amount}` : "-"}
                           </td>
@@ -1337,15 +1360,15 @@ export default function AdminDashboard() {
       {/* Card Detail Modal */}
       {showCardDetailModal && selectedCard && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           onClick={() => setShowCardDetailModal(false)}
         >
           <div
-            className="bg-white rounded-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-2xl w-full max-w-2xl mx-auto p-4 sm:p-6 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Card Details</h2>
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Card Details</h2>
               <button
                 onClick={() => setShowCardDetailModal(false)}
                 className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer"
@@ -1354,55 +1377,101 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs text-gray-500 uppercase">Invoice</label>
-                  <p className="font-medium">{selectedCard.invoice_number}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 uppercase">Status</label>
-                  <div className="mt-1">{getStatusBadge(selectedCard.status)}</div>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 uppercase">Sender</label>
-                  <p className="font-medium">{selectedCard.sender_name || "Anonymous"}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 uppercase">Recipient</label>
-                  <p className="font-medium">{selectedCard.recipient_name}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 uppercase">Email</label>
-                  <p className="font-medium text-sm">{selectedCard.recipient_email}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 uppercase">Gift Amount</label>
-                  <p className="font-medium text-[#4ECDC4]">
-                    {selectedCard.amount > 0 ? `£${selectedCard.amount}` : "No gift"}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 uppercase">Card Cost</label>
-                  <p className="font-medium">£{selectedCard.card_cost || "2.50"}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 uppercase">Created</label>
-                  <p className="font-medium text-sm">{formatDate(selectedCard.created_at)}</p>
+            <div className="space-y-4 sm:space-y-6">
+              {/* Basic Information */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 uppercase mb-3">Basic Information</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase">Invoice</label>
+                    <p className="font-medium text-sm sm:text-base">{selectedCard.invoice_number}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase">Status</label>
+                    <div className="mt-1">{getStatusBadge(selectedCard.status)}</div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase">Sender</label>
+                    <p className="font-medium text-sm sm:text-base">{selectedCard.sender_name || "Anonymous"}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase">Recipient</label>
+                    <p className="font-medium text-sm sm:text-base">{selectedCard.recipient_name}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase">Email</label>
+                    <p className="font-medium text-xs sm:text-sm break-all">{selectedCard.recipient_email}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase">Gift Amount</label>
+                    <p className="font-medium text-[#4ECDC4] text-sm sm:text-base">
+                      {selectedCard.amount > 0 ? `£${selectedCard.amount}` : "No gift"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase">Card Cost</label>
+                    <p className="font-medium text-sm sm:text-base">£{selectedCard.card_cost || "2.50"}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase">Created</label>
+                    <p className="font-medium text-xs sm:text-sm">{formatDate(selectedCard.created_at)}</p>
+                  </div>
                 </div>
               </div>
+
+              {selectedCard.account_holder_name && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase mb-3">Bank Account Details</h3>
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
+                    <div className="grid grid-cols-1 gap-3">
+                      <div>
+                        <label className="text-xs text-blue-700 uppercase font-medium">Account Holder Name</label>
+                        <p className="font-semibold text-gray-900 text-sm sm:text-base mt-1">
+                          {selectedCard.account_holder_name}
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-blue-700 uppercase font-medium">Sort Code</label>
+                          <p className="font-mono font-semibold text-gray-900 text-sm sm:text-base mt-1">
+                            {selectedCard.sort_code}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-xs text-blue-700 uppercase font-medium">Account Number</label>
+                          <p className="font-mono font-semibold text-gray-900 text-sm sm:text-base mt-1">
+                            •••• {selectedCard.account_number_last4}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-3 text-xs text-blue-700 bg-white/60 rounded-lg p-2">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                        />
+                      </svg>
+                      <span>Only last 4 digits stored for security</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* </CHANGE> */}
 
               {selectedCard.message && (
                 <div>
                   <label className="text-xs text-gray-500 uppercase">Message</label>
-                  <p className="mt-1 p-3 bg-gray-50 rounded-lg text-sm">{selectedCard.message}</p>
+                  <p className="mt-1 p-3 bg-gray-50 rounded-lg text-xs sm:text-sm">{selectedCard.message}</p>
                 </div>
               )}
             </div>
 
             <button
               onClick={() => setShowCardDetailModal(false)}
-              className="mt-6 w-full py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors cursor-pointer"
+              className="mt-6 w-full py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors cursor-pointer text-sm sm:text-base"
             >
               Close
             </button>

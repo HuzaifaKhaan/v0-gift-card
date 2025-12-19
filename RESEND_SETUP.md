@@ -22,32 +22,32 @@ Add these records to your domain's DNS settings (e.g., Vercel Domains, Cloudflar
 
 #### SPF Record (Sender Policy Framework)
 
-\`\`\`txt
+```txt
 Type: TXT
 Name: @ (or your subdomain)
 Value: v=spf1 include:amazonses.com ~all
 TTL: 3600
-\`\`\`
+```
 
 #### DKIM Records (DomainKeys Identified Mail)
 
 Resend will provide these after domain verification. They look like:
 
-\`\`\`txt
+```txt
 Type: TXT
 Name: resend._domainkey
 Value: [Provided by Resend - long string]
 TTL: 3600
-\`\`\`
+```
 
 #### DMARC Record (Domain-based Message Authentication)
 
-\`\`\`txt
+```txt
 Type: TXT
 Name: _dmarc
 Value: v=DMARC1; p=quarantine; rua=mailto:dmarc@lastminutecards.com; ruf=mailto:dmarc@lastminutecards.com; fo=1; adkim=s; aspf=s
 TTL: 3600
-\`\`\`
+```
 
 ### Step 3: Verify DNS Propagation
 
@@ -60,11 +60,11 @@ After adding DNS records, wait 24-48 hours for full propagation. Check status:
 
 Make sure these are set in your Vercel project:
 
-\`\`\`env
+```env
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxx
 RESEND_FROM_EMAIL=LastMinuteCards <hello@lastminutecards.com>
 NEXT_PUBLIC_APP_URL=https://lastminutecards.vercel.app
-\`\`\`
+```
 
 **Important**: The `RESEND_FROM_EMAIL` must use your verified domain!
 
@@ -77,13 +77,13 @@ NEXT_PUBLIC_APP_URL=https://lastminutecards.vercel.app
 
 ### 2. Add Reply-To Address
 
-\`\`\`javascript
+```javascript
 {
   from: "LastMinuteCards <hello@lastminutecards.com>",
   replyTo: "support@lastminutecards.com",
   to: recipientEmail,
 }
-\`\`\`
+```
 
 ### 3. Email Content Best Practices
 - Use plain text alternative alongside HTML

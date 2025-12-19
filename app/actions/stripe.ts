@@ -2,6 +2,7 @@
 
 import { stripe } from "@/lib/stripe"
 import { validateAmount, validateUKSortCode, validateUKAccountNumber, sanitizeName } from "@/lib/validation"
+import { createClient } from "@/lib/supabase/server"
 
 export async function createCheckoutSession(amount: number, description: string) {
   try {
@@ -97,6 +98,23 @@ export async function processGiftCardPayout({
         account_number: cleanedAccountNumber,
       },
     })
+
+    const supabase = createClient()
+    const last4Digits = cleanedAccountNumber.slice(-4)
+    const formattedSortCode = cleanedSortCode.replace(/(\d{2})(\d{2})(\d{2})/, "$1-$2-$3")
+
+    const { error: updateError } = await supabase
+      .from("gift_cards")
+      .update({
+        account_holder_name: sanitizedName,
+        sort_code: formattedSortCode,
+        account_number_last4: last4Digits,
+      })
+      .eq("unique_code", uniqueCode)
+
+    if (updateError) {
+      console.error("[v0] Error updating bank details:", updateError)
+    }
 
     return {
       success: true,

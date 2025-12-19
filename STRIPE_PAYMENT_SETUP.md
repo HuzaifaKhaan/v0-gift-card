@@ -23,10 +23,10 @@ This document explains the Stripe PaymentIntent implementation with proper 3D Se
 
 Required environment variables (already configured in your project):
 
-\`\`\`
+```
 STRIPE_SECRET_KEY=sk_test_...           # Server-side only
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...  # Client-side
-\`\`\`
+```
 
 ## Key Features
 
@@ -63,7 +63,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...  # Client-side
 
 Replace your current `StripeCheckout` component:
 
-\`\`\`tsx
+```tsx
 // Old (Embedded Checkout)
 <StripeCheckout
   amount={totalAmount}
@@ -81,7 +81,7 @@ Replace your current `StripeCheckout` component:
   uniqueCode={uniqueCode}
   onComplete={handlePaymentComplete}
 />
-\`\`\`
+```
 
 ## Testing 3D Secure
 
@@ -103,7 +103,7 @@ Use these test cards in test mode:
 
 For production, you should also handle webhooks:
 
-\`\`\`typescript
+```typescript
 // app/api/webhooks/stripe/route.ts
 import { stripe } from "@/lib/stripe"
 import { NextRequest, NextResponse } from "next/server"
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
   
   return NextResponse.json({ received: true })
 }
-\`\`\`
+```
 
 ## Common Issues
 
@@ -150,12 +150,12 @@ Current setting: **GBP** (British Pounds)
 
 To change currency, edit `app/api/create-payment-intent/route.ts`:
 
-\`\`\`typescript
+```typescript
 currency: "usd", // or "eur", "gbp", "aud", etc.
-\`\`\`
+```
 
 And update the button text in `components/payment-element-checkout.tsx`:
 
-\`\`\`tsx
+```tsx
 `Pay $${amount.toFixed(2)}` // for USD
 `Pay €${amount.toFixed(2)}` // for EUR
