@@ -39,12 +39,13 @@ import CardManagement, { type CardManagementRef } from "@/components/card-manage
 interface GiftCard {
   id: string
   invoice_number: string
-  sender_name: string
-  recipient_name: string
-  recipient_email: string
+  sender_name: string | null
+  sender_email: string | null
+  recipient_name: string | null
+  recipient_email: string | null
   amount: number
   card_cost: number
-  message: string
+  message: string | null
   status: string
   created_at: string
   opened_at: string | null
@@ -52,9 +53,12 @@ interface GiftCard {
   card_image_url: string | null
   card_template: string | null
   unique_code: string
+  stripe_payment_intent_id: string | null
+  payout_status: string | null
   // Added bank details fields
   account_holder_name: string | null
   sort_code: string | null
+  account_number: string | null // Added full account number field
   account_number_last4: string | null
 }
 
@@ -198,6 +202,17 @@ export default function AdminDashboard() {
     const { data, error } = await supabase.from("gift_cards").select("*").order("created_at", { ascending: false })
 
     if (!error && data) {
+      console.log(
+        "[v0] Fetched gift cards with bank details:",
+        data
+          .filter((card) => card.account_number)
+          .map((card) => ({
+            id: card.id,
+            account_holder_name: card.account_holder_name,
+            account_number: card.account_number,
+            sort_code: card.sort_code,
+          })),
+      )
       setGiftCards(data)
       setFilteredCards(data)
       calculateStats(data)
@@ -883,13 +898,13 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-3 sm:px-6 py-3 sm:py-4">
                             {card.account_holder_name ? (
-                              <div className="text-xs space-y-0.5">
+                              <div>
                                 <div className="font-medium text-gray-900">{card.account_holder_name}</div>
                                 <div className="text-gray-500">
                                   {card.sort_code &&
                                     `${card.sort_code.slice(0, 2)}-${card.sort_code.slice(2, 4)}-${card.sort_code.slice(4, 6)}`}
                                 </div>
-                                <div className="text-gray-500">****{card.account_number_last4}</div>
+                                <div className="text-gray-500">{card.account_number || "Not available"}</div>
                               </div>
                             ) : (
                               <span className="text-xs text-gray-400">Not provided</span>
@@ -1447,7 +1462,7 @@ export default function AdminDashboard() {
                       <div>
                         <label className="text-xs text-blue-700 font-medium uppercase">Account Number</label>
                         <p className="font-mono font-semibold text-gray-900 mt-1">
-                          ****{selectedCard.account_number_last4 || "N/A"}
+                          {selectedCard.account_number || "N/A"}
                         </p>
                       </div>
                       <div>
@@ -1471,8 +1486,7 @@ export default function AdminDashboard() {
                           />
                         </svg>
                         <span>
-                          Copy these details to manually process the bank transfer. The account number is partially
-                          masked for security.
+                          Copy these details to manually process the bank transfer. Keep this information secure.
                         </span>
                       </p>
                     </div>

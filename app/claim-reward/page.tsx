@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,6 +13,7 @@ import { BankAccountForm } from "@/components/bank-account-form"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 export default function ClaimRewardPage() {
+  const router = useRouter()
   const [step, setStep] = useState<"enter-code" | "verified" | "claim-reward">("enter-code")
   const [uniqueCode, setUniqueCode] = useState("")
   const [isValidating, setIsValidating] = useState(false)
@@ -64,6 +66,11 @@ export default function ClaimRewardPage() {
 
   const handleClaimSuccess = () => {
     setShowSuccessModal(true)
+  }
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false)
+    router.push("/")
   }
 
   return (
@@ -377,7 +384,7 @@ export default function ClaimRewardPage() {
             </div>
           </div>
           <Button
-            onClick={() => setShowSuccessModal(false)}
+            onClick={handleCloseModal}
             className="w-full mt-6 h-12 text-base font-semibold bg-gradient-to-r from-[#F6664C] to-[#ff8c73] hover:from-[#e55a43] hover:to-[#ff7b5e] text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] rounded-lg"
           >
             Close

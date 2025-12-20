@@ -88,6 +88,14 @@ export async function processGiftCardPayout({
     const cleanedSortCode = sortCode.replace(/[\s-]/g, "")
     const cleanedAccountNumber = accountNumber.replace(/\s/g, "")
 
+    console.log("[v0] Saving bank details:", {
+      uniqueCode,
+      accountHolderName: sanitizedName,
+      sortCode: cleanedSortCode,
+      accountNumber: cleanedAccountNumber,
+      last4: cleanedAccountNumber.slice(-4),
+    })
+
     const bankAccountToken = await stripe.tokens.create({
       bank_account: {
         country: "GB",
@@ -99,22 +107,29 @@ export async function processGiftCardPayout({
       },
     })
 
-    const supabase = createClient()
+    const supabase = await createClient()
     const last4 = cleanedAccountNumber.slice(-4)
 
-    const { error: updateError } = await supabase
+    const { data: updateData, error: updateError } = await supabase
       .from("gift_cards")
       .update({
         account_holder_name: sanitizedName,
         sort_code: cleanedSortCode,
+        account_number: cleanedAccountNumber,
         account_number_last4: last4,
       })
       .eq("unique_code", uniqueCode)
+      .select()
 
     if (updateError) {
       console.error("[v0] Error saving bank details:", updateError)
-      // Don't fail the payout if saving bank details fails, but log it
+      return {
+        success: false,
+        error: "Failed to save bank details to database",
+      }
     }
+
+    console.log("[v0] Bank details saved successfully:", updateData)
 
     return {
       success: true,
