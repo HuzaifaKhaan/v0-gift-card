@@ -40,34 +40,50 @@ export default function AdminLoginPage() {
     setIsLoading(true)
 
     try {
+      console.log("[v0] Attempting admin login for:", email)
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (error) {
+        console.error("[v0] Login error:", error.message)
         setError(error.message)
         setIsLoading(false)
         return
       }
 
       if (!data.user) {
+        console.error("[v0] No user data returned")
         setError("Login failed - no user data")
         setIsLoading(false)
         return
       }
 
+      console.log("[v0] User authenticated:", {
+        id: data.user.id,
+        email: data.user.email,
+        role: data.user.user_metadata?.role,
+      })
+
       const userRole = data.user.user_metadata?.role
 
       if (userRole !== "admin") {
+        console.error("[v0] User does not have admin role:", userRole)
         setError("You do not have admin access")
         await supabase.auth.signOut()
         setIsLoading(false)
         return
       }
 
-      router.replace("/admin")
+      console.log("[v0] Admin authenticated successfully, redirecting to dashboard...")
+
+      setTimeout(() => {
+        window.location.href = "/admin"
+      }, 500)
     } catch (err) {
+      console.error("[v0] Unexpected login error:", err)
       setError("An unexpected error occurred")
       setIsLoading(false)
     }
