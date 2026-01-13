@@ -34,6 +34,7 @@ export function BankAccountForm({
   const [confirmedDetails, setConfirmedDetails] = useState(false)
   const [formData, setFormData] = useState({
     accountHolderName: recipientName || "",
+    bankName: "", // Added bank name field
     sortCode: "",
     accountNumber: "",
     confirmAccountNumber: "",
@@ -70,6 +71,7 @@ export function BankAccountForm({
         uniqueCode,
         amount,
         accountHolderName: formData.accountHolderName,
+        bankName: formData.bankName, // Pass bank name to payout function
         sortCode: formData.sortCode.replace(/[-\s]/g, ""), // Remove formatting
         accountNumber: formData.accountNumber,
         recipientEmail,
@@ -127,6 +129,22 @@ export function BankAccountForm({
               disabled={isProcessing}
               className="text-sm sm:text-base h-9 sm:h-10"
             />
+          </div>
+
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="bankName" className="text-xs sm:text-sm">
+              Bank Name
+            </Label>
+            <Input
+              id="bankName"
+              value={formData.bankName}
+              onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
+              placeholder="e.g., Barclays, NatWest, Lloyds"
+              required
+              disabled={isProcessing}
+              className="text-sm sm:text-base h-9 sm:h-10"
+            />
+            <p className="text-xs text-gray-500">Name of your bank</p>
           </div>
 
           <div className="space-y-1.5 sm:space-y-2">

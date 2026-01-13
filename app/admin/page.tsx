@@ -57,6 +57,7 @@ interface GiftCard {
   payout_status: string | null
   // Added bank details fields
   account_holder_name: string | null
+  bank_name: string | null
   sort_code: string | null
   account_number: string | null // Added full account number field
   account_number_last4: string | null
@@ -898,9 +899,10 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-3 sm:px-6 py-3 sm:py-4">
                             {card.account_holder_name ? (
-                              <div>
+                              <div className="text-xs sm:text-sm">
                                 <div className="font-medium text-gray-900">{card.account_holder_name}</div>
-                                <div className="text-gray-500">
+                                {card.bank_name && <div className="text-gray-600 mt-0.5">{card.bank_name}</div>}
+                                <div className="text-gray-500 mt-0.5">
                                   {card.sort_code &&
                                     `${card.sort_code.slice(0, 2)}-${card.sort_code.slice(2, 4)}-${card.sort_code.slice(4, 6)}`}
                                 </div>
@@ -1451,6 +1453,12 @@ export default function AdminDashboard() {
                         <label className="text-xs text-blue-700 font-medium uppercase">Account Holder Name</label>
                         <p className="font-semibold text-gray-900 mt-1">{selectedCard.account_holder_name}</p>
                       </div>
+                      {selectedCard.bank_name && (
+                        <div>
+                          <label className="text-xs text-blue-700 font-medium uppercase">Bank Name</label>
+                          <p className="font-semibold text-gray-900 mt-1">{selectedCard.bank_name}</p>
+                        </div>
+                      )}
                       <div>
                         <label className="text-xs text-blue-700 font-medium uppercase">Sort Code</label>
                         <p className="font-mono font-semibold text-gray-900 mt-1">

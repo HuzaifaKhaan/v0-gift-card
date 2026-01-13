@@ -43,6 +43,7 @@ export async function processGiftCardPayout({
   uniqueCode,
   amount,
   accountHolderName,
+  bankName,
   sortCode,
   accountNumber,
   recipientEmail,
@@ -50,6 +51,7 @@ export async function processGiftCardPayout({
   uniqueCode: string
   amount: number
   accountHolderName: string
+  bankName: string
   sortCode: string
   accountNumber: string
   recipientEmail: string
@@ -85,12 +87,21 @@ export async function processGiftCardPayout({
       }
     }
 
+    const sanitizedBankName = sanitizeName(bankName)
+    if (!sanitizedBankName) {
+      return {
+        success: false,
+        error: "Bank name is required",
+      }
+    }
+
     const cleanedSortCode = sortCode.replace(/[\s-]/g, "")
     const cleanedAccountNumber = accountNumber.replace(/\s/g, "")
 
     console.log("[v0] Saving bank details:", {
       uniqueCode,
       accountHolderName: sanitizedName,
+      bankName: sanitizedBankName,
       sortCode: cleanedSortCode,
       accountNumber: cleanedAccountNumber,
       last4: cleanedAccountNumber.slice(-4),
@@ -114,6 +125,7 @@ export async function processGiftCardPayout({
       .from("gift_cards")
       .update({
         account_holder_name: sanitizedName,
+        bank_name: sanitizedBankName,
         sort_code: cleanedSortCode,
         account_number: cleanedAccountNumber,
         account_number_last4: last4,
