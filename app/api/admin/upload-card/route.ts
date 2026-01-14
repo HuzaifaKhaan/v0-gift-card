@@ -1,17 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { put } from "@vercel/blob"
-import { isAdminAuthenticated, getAdminClient } from "@/lib/supabase/admin"
+import { createClient } from "@supabase/supabase-js"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 
 export async function POST(request: NextRequest) {
   try {
-    const isAdmin = await isAdminAuthenticated()
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     const formData = await request.formData()
     const file = formData.get("file") as File
     const category = formData.get("category") as string
@@ -41,8 +36,14 @@ export async function POST(request: NextRequest) {
       access: "public",
     })
 
-    const { adminClient } = await getAdminClient()
-    const { data: card, error: dbError } = await adminClient
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
+
+    const { data: card, error: dbError } = await supabase
       .from("card_templates")
       .insert({
         name: sanitizedName,
