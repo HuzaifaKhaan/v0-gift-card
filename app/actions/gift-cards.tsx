@@ -97,11 +97,12 @@ export async function createGiftCard({
 
         const fromEmail = process.env.RESEND_FROM_EMAIL || "LastMinuteCards <hello@lastminutecards.com>"
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://lastminutecards.vercel.app"
-        const viewLink = `${appUrl}/view?code=${uniqueCode}`
+        const encodedToken = await encodeGiftCode(uniqueCode)
+        const viewLink = `${appUrl}/claim?token=${encodedToken}`
 
         console.log("Sending email to:", recipientEmail)
         console.log("From:", fromEmail)
-        console.log("View link:", viewLink)
+        console.log("Secure view link:", viewLink)
 
         const emailResult = await resend.emails.send({
           from: fromEmail,
