@@ -176,7 +176,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/20 pt-6 sm:pt-8 text-center">
-          <p className="text-white/80 text-xs sm:text-sm">© 2025 LastMinuteCards UK. All rights reserved.</p>
+          <p className="text-white/80 text-xs sm:text-sm">© 2026 LastMinuteCards UK. All rights reserved.</p>
         </div>
       </div>
     </footer>
