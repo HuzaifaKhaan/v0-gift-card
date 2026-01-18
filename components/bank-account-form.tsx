@@ -33,8 +33,9 @@ export function BankAccountForm({
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [confirmedDetails, setConfirmedDetails] = useState(false)
   const [formData, setFormData] = useState({
-    accountHolderName: recipientName || "",
-    bankName: "", // Added bank name field
+    firstName: "",
+    lastName: "",
+    bankName: "",
     sortCode: "",
     accountNumber: "",
     confirmAccountNumber: "",
@@ -43,6 +44,17 @@ export function BankAccountForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
+    // Validate first name and last name
+    if (!formData.firstName.trim()) {
+      setError("Please enter your first name")
+      return
+    }
+
+    if (!formData.lastName.trim()) {
+      setError("Please enter your middle/last name")
+      return
+    }
 
     if (!agreedToTerms || !confirmedDetails) {
       setError("Please agree to the terms and confirm your bank details are correct")
@@ -67,12 +79,17 @@ export function BankAccountForm({
     setIsProcessing(true)
 
     try {
+      // Combine first and last name for account holder name
+      const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`
+      
       const result = await processGiftCardPayout({
         uniqueCode,
         amount,
-        accountHolderName: formData.accountHolderName,
-        bankName: formData.bankName, // Pass bank name to payout function
-        sortCode: formData.sortCode.replace(/[-\s]/g, ""), // Remove formatting
+        accountHolderName: fullName,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        bankName: formData.bankName,
+        sortCode: formData.sortCode.replace(/[-\s]/g, ""),
         accountNumber: formData.accountNumber,
         recipientEmail,
       })
@@ -93,7 +110,7 @@ export function BankAccountForm({
     }
   }
 
-  const canSubmit = agreedToTerms && confirmedDetails
+  const canSubmit = agreedToTerms && confirmedDetails && formData.firstName.trim() && formData.lastName.trim()
 
   return (
     <Card className="w-full max-w-lg mx-auto shadow-xl border-0">
@@ -116,20 +133,40 @@ export function BankAccountForm({
 
       <CardContent className="px-4 sm:px-6">
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-          <div className="space-y-1.5 sm:space-y-2">
-            <Label htmlFor="accountHolderName" className="text-xs sm:text-sm">
-              Account Holder Name
-            </Label>
-            <Input
-              id="accountHolderName"
-              value={formData.accountHolderName}
-              onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value })}
-              placeholder="John Doe"
-              required
-              disabled={isProcessing}
-              className="text-sm sm:text-base h-9 sm:h-10"
-            />
+          {/* Recipient Name Fields */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="firstName" className="text-xs sm:text-sm">
+                First Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="firstName"
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                placeholder="John"
+                required
+                disabled={isProcessing}
+                className="text-sm sm:text-base h-9 sm:h-10"
+              />
+            </div>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="lastName" className="text-xs sm:text-sm">
+                Middle/Last Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="lastName"
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                placeholder="Doe"
+                required
+                disabled={isProcessing}
+                className="text-sm sm:text-base h-9 sm:h-10"
+              />
+            </div>
           </div>
+          <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+            Name must be the same as it appears on your physical card.
+          </p>
 
           <div className="space-y-1.5 sm:space-y-2">
             <Label htmlFor="bankName" className="text-xs sm:text-sm">

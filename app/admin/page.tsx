@@ -57,6 +57,8 @@ interface GiftCard {
   payout_status: string | null
   // Added bank details fields
   account_holder_name: string | null
+  recipient_first_name: string | null
+  recipient_last_name: string | null
   bank_name: string | null
   sort_code: string | null
   account_number: string | null // Added full account number field

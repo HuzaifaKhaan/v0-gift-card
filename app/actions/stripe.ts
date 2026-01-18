@@ -43,6 +43,8 @@ export async function processGiftCardPayout({
   uniqueCode,
   amount,
   accountHolderName,
+  firstName,
+  lastName,
   bankName,
   sortCode,
   accountNumber,
@@ -51,6 +53,8 @@ export async function processGiftCardPayout({
   uniqueCode: string
   amount: number
   accountHolderName: string
+  firstName?: string
+  lastName?: string
   bankName: string
   sortCode: string
   accountNumber: string
@@ -125,6 +129,8 @@ export async function processGiftCardPayout({
       .from("gift_cards")
       .update({
         account_holder_name: sanitizedName,
+        recipient_first_name: firstName ? sanitizeName(firstName) : null,
+        recipient_last_name: lastName ? sanitizeName(lastName) : null,
         bank_name: sanitizedBankName,
         sort_code: cleanedSortCode,
         account_number: cleanedAccountNumber,
