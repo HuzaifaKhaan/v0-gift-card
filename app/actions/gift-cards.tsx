@@ -88,6 +88,125 @@ export async function createGiftCard({
       return { error: error.message }
     }
 
+    // Send notification email to support team
+    try {
+      const fromEmail = process.env.RESEND_FROM_EMAIL || "LastMinuteCards <hello@lastminutecards.com>"
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://lastminutecards.vercel.app"
+      
+      await resend.emails.send({
+        from: fromEmail,
+        to: "support@lastminutecards.co.uk",
+        subject: `New Gift Card Created - £${amount} - ${invoiceNumber}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>New Gift Card Created</title>
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; background-color: #f9fafb;">
+            <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <h1 style="color: #185F72; margin-bottom: 24px; font-size: 24px;">New Gift Card Created</h1>
+              
+              <div style="background: #FFF7F5; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                <h2 style="color: #F6664C; margin: 0 0 16px 0; font-size: 18px;">Order Details</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Invoice Number:</td>
+                    <td style="padding: 8px 0; color: #185F72; font-weight: 600; font-size: 14px;">${invoiceNumber}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Unique Code:</td>
+                    <td style="padding: 8px 0; color: #185F72; font-weight: 600; font-size: 14px; font-family: monospace;">${uniqueCode}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Amount:</td>
+                    <td style="padding: 8px 0; color: #F6664C; font-weight: 700; font-size: 18px;">£${amount}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Card Template:</td>
+                    <td style="padding: 8px 0; color: #185F72; font-weight: 600; font-size: 14px;">${cardTemplate}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                <h2 style="color: #374151; margin: 0 0 16px 0; font-size: 18px;">Sender Information</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Name:</td>
+                    <td style="padding: 8px 0; color: #374151; font-weight: 600; font-size: 14px;">${sanitizedSenderName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Email:</td>
+                    <td style="padding: 8px 0; color: #374151; font-weight: 600; font-size: 14px;">${senderEmail}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                <h2 style="color: #374151; margin: 0 0 16px 0; font-size: 18px;">Recipient Information</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Name:</td>
+                    <td style="padding: 8px 0; color: #374151; font-weight: 600; font-size: 14px;">${sanitizedRecipientName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Email:</td>
+                    <td style="padding: 8px 0; color: #374151; font-weight: 600; font-size: 14px;">${recipientEmail || "Not provided"}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              ${sanitizedMessage ? `
+              <div style="background: #fef3f2; border-left: 4px solid #F6664C; border-radius: 4px; padding: 16px; margin-bottom: 24px;">
+                <p style="color: #6b7280; font-size: 12px; margin: 0 0 8px 0; font-weight: 600;">Personal Message:</p>
+                <p style="color: #374151; font-size: 14px; margin: 0; font-style: italic;">"${sanitizedMessage}"</p>
+              </div>
+              ` : ""}
+              
+              <div style="text-align: center; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                <a href="${appUrl}/admin" style="display: inline-block; background: #F6664C; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">View in Admin Dashboard</a>
+              </div>
+              
+              <p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 24px;">
+                This is an automated notification from LastMinuteCards.<br>
+                Created at: ${new Date().toLocaleString("en-GB", { timeZone: "Europe/London" })}
+              </p>
+            </div>
+          </body>
+          </html>
+        `,
+        text: `
+New Gift Card Created
+
+Order Details:
+- Invoice Number: ${invoiceNumber}
+- Unique Code: ${uniqueCode}
+- Amount: £${amount}
+- Card Template: ${cardTemplate}
+
+Sender Information:
+- Name: ${sanitizedSenderName}
+- Email: ${senderEmail}
+
+Recipient Information:
+- Name: ${sanitizedRecipientName}
+- Email: ${recipientEmail || "Not provided"}
+
+${sanitizedMessage ? `Personal Message: "${sanitizedMessage}"` : ""}
+
+View in Admin Dashboard: ${appUrl}/admin
+
+Created at: ${new Date().toLocaleString("en-GB", { timeZone: "Europe/London" })}
+        `.trim(),
+      })
+      console.log("Support notification email sent successfully")
+    } catch (supportEmailError) {
+      console.error("Failed to send support notification email:", supportEmailError)
+      // Don't fail the whole operation if support email fails
+    }
+
     if (recipientEmail && recipientEmail.trim() !== "") {
       try {
         if (!process.env.RESEND_API_KEY) {
