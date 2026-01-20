@@ -95,7 +95,7 @@ export async function createGiftCard({
       
       await resend.emails.send({
         from: fromEmail,
-        to: "support@lastminutecards.co.uk",
+        to: "lastminutecardsuk@outlook.com",
         subject: `New Gift Card Created - £${amount} - ${invoiceNumber}`,
         html: `
           <!DOCTYPE html>
