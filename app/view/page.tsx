@@ -219,7 +219,7 @@ function ViewCardContent() {
 
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-3">Payment Sent!</h1>
               <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                Your £{cardData?.amount} gift has been successfully transferred to your bank account. It may take 1-3
+                Your £{cardData?.amount} gift has been successfully transferred to your bank account. It may take 3-5
                 business days to appear.
               </p>
 
