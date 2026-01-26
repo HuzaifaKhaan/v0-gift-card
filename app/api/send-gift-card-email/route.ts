@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
                     </table>
                     
                     <p style="color: #6b7280; font-size: 14px; margin: 24px 0 0 0; line-height: 1.5;">
-                      Once you claim, you'll enter your bank details and receive the gift amount directly to your account within 1-2 business days.
+                      Once you claim, you'll enter your bank details and receive the gift amount directly to your account within 3-5 business days.
                     </p>
                     
                     <p style="color: #6b7280; font-size: 14px; margin: 16px 0 0 0; line-height: 1.5;">If the button doesn't work, copy and paste this link into your browser:<br><a href="${secureClaimLink}" style="color: #F6664C; word-break: break-all; text-decoration: underline;">${secureClaimLink}</a></p>
@@ -151,7 +151,7 @@ Claim your gift here: ${secureClaimLink}
 
 Your unique code (for verification): ${uniqueCode}
 
-Once you claim, you'll enter your bank details and receive the gift amount directly to your account within 1-2 business days.
+Once you claim, you'll enter your bank details and receive the gift amount directly to your account within 3-5 business days.
 
 If you have any questions, please contact us at support@lastminutecards.com
 
