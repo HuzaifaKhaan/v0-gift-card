@@ -152,7 +152,7 @@ export async function processGiftCardPayout({
     return {
       success: true,
       tokenId: bankAccountToken.id,
-      message: "Bank account verified. Payout will be processed within 1-2 business days.",
+      message: "Bank account verified. Payout will be processed within 3-5 business days.",
     }
   } catch (error: any) {
     console.error("Stripe payout error:", error)
