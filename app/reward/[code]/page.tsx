@@ -250,7 +250,7 @@ export default function RewardClaimPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Success!</h2>
               <p className="text-gray-600 mb-6">
                 {giftCard.amount > 0
-                  ? `Your £${giftCard.amount} has been sent to your bank account. It should arrive within 1-3 business days.`
+                  ? `Your £${giftCard.amount} has been sent to your bank account. It should arrive within 3-5 business days.`
                   : "You've successfully received your gift card!"}
               </p>
               <Button onClick={() => router.push("/")} className="bg-[#F6664C] hover:bg-[#e55540] text-white">
