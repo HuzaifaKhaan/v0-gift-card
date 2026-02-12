@@ -75,6 +75,7 @@ export default function Home() {
               width={512}
               height={512}
               priority
+              style={{ width: "auto", height: "auto" }}
               className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg h-auto"
             />
           </div>

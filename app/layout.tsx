@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased ${_ubuntu.variable}`}>
+      <body className={`font-sans antialiased ${_ubuntu.variable}`} suppressHydrationWarning>
         {children}
         <Analytics />
       </body>
