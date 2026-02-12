@@ -1,66 +1,62 @@
 import { createClient } from "@supabase/supabase-js";
+import bcrypt from "bcrypt";
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-  console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables");
+  console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables");
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+});
 
 async function createAdminUser() {
   const adminEmail = "admin@lastminutecards.com";
-  const adminPassword = "LastMinute2024!Admin"; // You should change this!
+  const adminPassword = "LastMinute@Admin2024";
 
-  console.log("Creating admin user...");
-  console.log(`Email: ${adminEmail}`);
-  console.log(`Password: ${adminPassword}`);
-  console.log("");
+  console.log("\n🔐 Creating admin user...\n");
 
   try {
-    // Create the user via Auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email: adminEmail,
-      password: adminPassword,
-      email_confirm: true,
-      user_metadata: {
-        role: "admin",
-        name: "Admin",
-      },
-    });
-
-    if (authError) {
-      console.error("Error creating auth user:", authError);
-      process.exit(1);
-    }
-
-    console.log("✓ Auth user created successfully");
-    console.log(`  User ID: ${authData.user.id}`);
+    // Hash the password
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(adminPassword, saltRounds);
 
     // Add to admin_users table
-    const { error: dbError } = await supabase.from("admin_users").insert({
-      id: authData.user.id,
-      email: adminEmail,
-      role: "admin",
-    });
+    const { data, error: dbError } = await supabase
+      .from("admin_users")
+      .insert({
+        email: adminEmail,
+        password_hash: passwordHash,
+        full_name: "Admin",
+        is_active: true,
+      })
+      .select();
 
     if (dbError) {
-      console.error("Error adding to admin_users table:", dbError);
-      // This might fail if the user already exists, which is okay
+      if (dbError.message.includes("duplicate")) {
+        console.log("⚠️  Admin user already exists");
+      } else {
+        console.error("Error creating admin user:", dbError);
+        process.exit(1);
+      }
     } else {
-      console.log("✓ Admin user added to admin_users table");
+      console.log("✓ Admin user created successfully!");
     }
 
-    console.log("");
-    console.log("Admin account created successfully!");
-    console.log("");
-    console.log("Login credentials:");
-    console.log(`  Email: ${adminEmail}`);
-    console.log(`  Password: ${adminPassword}`);
-    console.log("");
-    console.log("⚠️  IMPORTANT: Change the password immediately after first login!");
+    console.log("\n" + "=".repeat(50));
+    console.log("📧 ADMIN LOGIN CREDENTIALS");
+    console.log("=".repeat(50));
+    console.log(`Email:    ${adminEmail}`);
+    console.log(`Password: ${adminPassword}`);
+    console.log("=".repeat(50));
+    console.log("\n🌐 Admin Login: http://localhost:3000/admin/login");
+    console.log("\n⚠️  IMPORTANT: Change this password immediately after first login!");
     console.log("");
   } catch (error) {
     console.error("Unexpected error:", error);
