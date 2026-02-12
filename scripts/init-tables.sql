@@ -31,11 +31,11 @@ CREATE TABLE IF NOT EXISTS gift_cards (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create admin_users table
+-- Create admin_users table (for reference/audit, passwords managed by Supabase Auth)
 CREATE TABLE IF NOT EXISTS admin_users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
+  password_hash VARCHAR(255), -- "managed_by_supabase_auth" or bcrypt hash
   full_name VARCHAR(255),
   is_active BOOLEAN DEFAULT true,
   last_login TIMESTAMP,
