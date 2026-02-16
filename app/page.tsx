@@ -69,14 +69,17 @@ export default function Home() {
 
           {/* Right illustration */}
           <div className="flex-1 flex justify-center lg:justify-end w-full">
-            <Image
-              src="/images/banner-card.png"
-              alt="Birthday card illustration showing a bistro happy birthday card with green envelope"
-              width={512}
-              height={512}
-              priority
-              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg h-auto"
-            />
+            <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg aspect-square">
+              <Image
+                src="/images/banner-card.png"
+                alt="Birthday card illustration showing a bistro happy birthday card with green envelope"
+                width={512}
+                height={512}
+                priority
+                style={{ width: "100%", height: "100%" }}
+                className="object-contain"
+              />
+            </div>
           </div>
         </div>
       </section>

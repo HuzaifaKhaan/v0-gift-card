@@ -1,0 +1,207 @@
+================================================================================
+                    ENVIRONMENT VARIABLES REFERENCE
+================================================================================
+
+All variables have been configured in: .env.local
+
+================================================================================
+                        SUPABASE (✓ CONFIGURED)
+================================================================================
+
+NEXT_PUBLIC_SUPABASE_URL
+  Type: Public (safe to expose)
+  Value: https://hsjhdkizsejqqgttqiir.supabase.co
+  Used by: Frontend client
+  Status: ✓ Set
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+  Type: Public (safe to expose)
+  Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  Used by: Frontend authentication
+  Status: ✓ Set
+
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  Type: Public
+  Value: sb_publishable_UVrnYXprjSYNutMSAwSjJA_3tYEpA5T
+  Used by: Frontend SDK
+  Status: ✓ Set
+
+SUPABASE_SERVICE_ROLE_KEY
+  Type: Secret (NEVER expose)
+  Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  Used by: Server-side operations
+  Status: ✓ Set
+
+SUPABASE_JWT_SECRET
+  Type: Secret (NEVER expose)
+  Value: LZHmyfa6PTTywm0EaeWwO5Liqf5ttUD0...
+  Used by: JWT validation
+  Status: ✓ Set
+
+================================================================================
+                       DATABASE (✓ CONFIGURED)
+================================================================================
+
+POSTGRES_URL
+  Type: Secret (NEVER expose)
+  Value: postgres://postgres.hsjhdkizsejqqgttqiir:NsEj0DzQ6MWbiHeK@...
+  Used by: Direct database connection
+  Status: ✓ Set
+
+POSTGRES_PRISMA_URL
+  Type: Secret (NEVER expose)
+  Value: postgres://postgres.hsjhdkizsejqqgttqiir:NsEj0DzQ6MWbiHeK@aws-1-us-east-1.pooler.supabase.com:6543/...
+  Used by: Prisma ORM (connection pooling)
+  Status: ✓ Set
+
+POSTGRES_URL_NON_POOLING
+  Type: Secret (NEVER expose)
+  Value: postgres://postgres.hsjhdkizsejqqgttqiir:NsEj0DzQ6MWbiHeK@aws-1-us-east-1.pooler.supabase.com:5432/...
+  Used by: Raw SQL connections (no pooling)
+  Status: ✓ Set
+
+POSTGRES_HOST
+  Type: Public
+  Value: db.hsjhdkizsejqqgttqiir.supabase.co
+  Used by: Database location reference
+  Status: ✓ Set
+
+POSTGRES_DATABASE
+  Type: Public
+  Value: postgres
+  Used by: Database name
+  Status: ✓ Set
+
+POSTGRES_USER
+  Type: Sensitive
+  Value: postgres
+  Used by: Database authentication
+  Status: ✓ Set
+
+POSTGRES_PASSWORD
+  Type: Secret (NEVER expose)
+  Value: NsEj0DzQ6MWbiHeK
+  Used by: Database authentication
+  Status: ✓ Set
+
+================================================================================
+                         STRIPE (⏳ AWAITING)
+================================================================================
+
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  Type: Public (safe to expose)
+  Value: [AWAITING - pk_test_...]
+  Used by: Frontend payment forms
+  Status: ⏳ Pending
+
+STRIPE_SECRET_KEY
+  Type: Secret (NEVER expose)
+  Value: [AWAITING - sk_test_...]
+  Used by: Backend payment processing
+  Status: ⏳ Pending
+
+Instructions when you have Stripe keys:
+1. Get keys from: https://dashboard.stripe.com/developers/api-keys
+2. Update .env.local with:
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
+   STRIPE_SECRET_KEY="sk_test_..."
+3. Restart dev server with: npm run dev
+
+================================================================================
+                         EMAIL (OPTIONAL)
+================================================================================
+
+RESEND_API_KEY
+  Type: Secret (NEVER expose)
+  Value: re_1234567890 (update with actual key)
+  Used by: Email notifications
+  Status: ✓ Optional (configured placeholder)
+
+To enable email notifications:
+1. Sign up at: https://resend.com
+2. Get your API key
+3. Update RESEND_API_KEY in .env.local
+
+================================================================================
+                      APPLICATION SETTINGS
+================================================================================
+
+NODE_ENV
+  Type: Public
+  Value: development
+  Used by: Environment detection
+  Options: development, production
+  Status: ✓ Set to development
+
+NEXT_PUBLIC_APP_URL
+  Type: Public
+  Value: http://localhost:3000 (in development)
+  Used by: Callback URLs, redirects
+  Status: Auto-detected in dev
+
+================================================================================
+                       SECURITY NOTES
+================================================================================
+
+🔒 SECRET VARIABLES (Never commit to git):
+  - STRIPE_SECRET_KEY
+  - POSTGRES_PASSWORD
+  - POSTGRES_URL
+  - POSTGRES_PRISMA_URL
+  - SUPABASE_SERVICE_ROLE_KEY
+  - SUPABASE_JWT_SECRET
+  - RESEND_API_KEY
+
+✓ PUBLIC VARIABLES (Safe to commit):
+  - NEXT_PUBLIC_SUPABASE_URL
+  - NEXT_PUBLIC_SUPABASE_ANON_KEY
+  - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  - NODE_ENV
+
+================================================================================
+                     HOW TO USE THESE VARIABLES
+================================================================================
+
+In frontend components (client-side):
+  Only use variables starting with NEXT_PUBLIC_
+  Example: process.env.NEXT_PUBLIC_SUPABASE_URL
+
+In server components / API routes (server-side):
+  Can use any variable
+  Example: process.env.STRIPE_SECRET_KEY
+
+In scripts:
+  Can use any variable
+  Example: process.env.SUPABASE_SERVICE_ROLE_KEY
+
+In environment detection:
+  Use: process.env.NODE_ENV
+
+================================================================================
+                      VERIFYING CONFIGURATION
+================================================================================
+
+To verify all variables are set correctly:
+
+1. Check .env.local exists
+2. Run: cat .env.local (to view)
+3. Start dev server: npm run dev
+4. Check console for no warnings
+
+The app will log if any required variables are missing.
+
+================================================================================
+                    NEXT: PROVIDE STRIPE KEYS
+================================================================================
+
+Once you have Stripe API keys:
+
+1. Edit .env.local
+2. Add:
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
+   STRIPE_SECRET_KEY="sk_test_..."
+3. Save file
+4. Restart dev server: npm run dev
+5. Payments will work automatically
+
+================================================================================
